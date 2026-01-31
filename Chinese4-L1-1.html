@@ -691,6 +691,23 @@
                           </button>
 
                         </div>
+
+                        {/* 返回主頁按鈕 */}
+                        <div style={{ marginTop: '20px' }}>
+                            <a href="index.html" 
+                               className="btn btn-gray hover:opacity-90 transition-opacity" 
+                               style={{
+                                   textDecoration: 'none', 
+                                   padding: '10px 20px',
+                                   background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
+                                   color: 'white', 
+                                   borderRadius: '999px', 
+                                   display: 'inline-block',
+                                   boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                               }}>
+                                🏠 返回國文學習 App 總部
+                            </a>
+                        </div>
                       </div>
                     )}
 
@@ -961,7 +978,7 @@
 
                   let topCandidates = candidates.slice(0, 10);
                   if (topCandidates.length < 3) {
-                     topCandidates = data.filter(i => i.id !== item.id);
+                      topCandidates = data.filter(i => i.id !== item.id);
                   }
                   
                   const shuffledOthers = shuffleArray(topCandidates);
@@ -1039,7 +1056,7 @@
               return (
                 <div className="max-w-4xl mx-auto pb-20">
                   <div className="sticky top-16 z-10 bg-orange-50/95 backdrop-blur-sm pt-4 pb-2 border-b border-orange-200 mb-6 shadow-sm">
-                     <div className="flex justify-between items-center mb-2 px-2">
+                      <div className="flex justify-between items-center mb-2 px-2">
                         <div>
                             <h2 className="text-xl font-bold text-orange-900 flex items-center gap-2">
                                 <Zap size={24} className="fill-orange-500 text-orange-600"/>
@@ -1076,13 +1093,13 @@
                                 暫停離開
                             </button>
                         </div>
-                     </div>
-                     <div className="w-full bg-orange-200 h-2.5 rounded-full overflow-hidden">
+                      </div>
+                      <div className="w-full bg-orange-200 h-2.5 rounded-full overflow-hidden">
                         <div 
                             className="bg-orange-600 h-2.5 rounded-full progress-bar shadow-[0_0_10px_rgba(249,115,22,0.5)]" 
                             style={{ width: `${progress}%` }}
                         ></div>
-                     </div>
+                      </div>
                   </div>
 
                   <div className="space-y-6">
