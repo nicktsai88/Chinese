@@ -234,7 +234,7 @@
 
                 // 9. 更
                 { id: 901, char: "更", question: "三「更」半夜", answer: "ㄍㄥ", partOfSpeech: "量詞", meaning: "古代夜間計時單位（一夜分五更）。", sentence: "你不要三更半夜大聲喧嘩，會吵到鄰居睡覺。", distractors: ["ㄍㄥˋ"] },
-                { id: 902, char: "更", question: "「更」加", answer: "ㄍㄥˋ", partOfSpeech: "副詞", meaning: "愈、再（程度加深）。", sentence: "經過這次教訓，他做事變得更加謹慎小心了。", distractors: ["ㄍㄥ"] },
+                { id: 902, char: "更", question: "「更」更加", answer: "ㄍㄥˋ", partOfSpeech: "副詞", meaning: "愈、再（程度加深）。", sentence: "經過這次教訓，他做事變得更加謹慎小心了。", distractors: ["ㄍㄥ"] },
 
                 // 10. 強
                 { id: 1001, char: "強", question: "倔「強」", answer: "ㄐㄧㄤˋ", partOfSpeech: "形容詞", meaning: "固執、不順從。", sentence: "這孩子個性倔強，認定了目標就不輕易改變。", distractors: ["ㄑㄧㄤˊ"] },
@@ -496,6 +496,21 @@
                                     <MenuButton onClick={() => setMode('quiz')} icon={<Zap size={40} className="text-orange-600" />} title="閃電刷題" desc="瀑布流式快速挑戰" />
                                     <MenuButton onClick={() => setMode('favorites')} icon={<Heart size={40} className="text-red-500 fill-red-500" />} title="我的最愛" desc="複習您收藏的重點題目" highlight="red" />
                                     <MenuButton onClick={() => setMode('mistakes')} icon={<BookX size={40} className="text-stone-600" />} title="錯題複習" desc="針對答錯的題目加強練習" highlight="stone" />
+                                </div>
+
+                                <div style={{ marginTop: '20px' }}>
+                                    <a href="index.html" 
+                                       className="btn btn-gray" 
+                                       style={{
+                                           textDecoration: 'none', 
+                                           padding: '10px 20px',
+                                           background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
+                                           color: 'white', 
+                                           borderRadius: '999px', 
+                                           display: 'inline-block'
+                                       }}>
+                                        🏠 返回國文學習 App 總部
+                                    </a>
                                 </div>
                                 </div>
                             )}
