@@ -602,6 +602,22 @@
                                     <MenuButton onClick={() => setMode('favorites')} icon={<Heart size={40} className="text-red-500 fill-red-500" />} title="我的最愛" desc="複習您收藏的重點題目" highlight="red" />
                                     <MenuButton onClick={() => setMode('mistakes')} icon={<BookX size={40} className="text-stone-600" />} title="錯題複習" desc="針對答錯的題目加強練習" highlight="stone" />
                                 </div>
+                                
+                                {/* Add Return Button Here */}
+                                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                                    <a href="index.html" 
+                                       className="btn btn-gray" 
+                                       style={{
+                                           textDecoration: 'none', 
+                                           padding: '10px 20px',
+                                           background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
+                                           color: 'white', 
+                                           borderRadius: '999px', 
+                                           display: 'inline-block'
+                                       }}>
+                                        🏠 返回國文學習 App 總部
+                                    </a>
+                                </div>
                                 </div>
                             )}
 
@@ -717,22 +733,6 @@
                         </div>
                     )}
                     <div className="text-center text-sm text-stone-500 mt-4">顯示 {filteredData.length} 筆資料</div>
-                    
-                    {/* Add Return Button */}
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <a href="index.html" 
-                           className="btn btn-gray" 
-                           style={{
-                               textDecoration: 'none', 
-                               padding: '10px 20px',
-                               background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
-                               color: 'white', 
-                               borderRadius: '999px', 
-                               display: 'inline-block'
-                           }}>
-                            🏠 返回國文學習 App 總部
-                        </a>
-                    </div>
                     </div>
                 );
             };
