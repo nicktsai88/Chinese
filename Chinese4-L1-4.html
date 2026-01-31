@@ -117,7 +117,7 @@
         // 導入 Firebase (使用 Google 官方 CDN)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // 將模組掛載到全局 window 對象
         window.React = React;
@@ -162,7 +162,7 @@
             const confetti = window.confetti;
             
             // Firebase 函數
-            const { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, arrayUnion, getDoc } = window.Firebase;
+            const { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getFirestore, collection, doc, onSnapshot, setDoc, updateDoc, arrayUnion, arrayRemove, deleteDoc, getDoc } = window.Firebase;
 
             // --- Firebase Configuration ---
             const firebaseConfig = {
@@ -717,6 +717,22 @@
                         </div>
                     )}
                     <div className="text-center text-sm text-stone-500 mt-4">顯示 {filteredData.length} 筆資料</div>
+                    
+                    {/* Add Return Button */}
+                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                        <a href="index.html" 
+                           className="btn btn-gray" 
+                           style={{
+                               textDecoration: 'none', 
+                               padding: '10px 20px',
+                               background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
+                               color: 'white', 
+                               borderRadius: '999px', 
+                               display: 'inline-block'
+                           }}>
+                            🏠 返回國文學習 App 總部
+                        </a>
+                    </div>
                     </div>
                 );
             };
