@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L2木蘭詩-綜合測驗</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff7ed; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fdba74; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb923c; 
+        }
+        .progress-bar {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .heart-click {
+            animation: heartbeat 0.4s ease-in-out;
+        }
+        
+        /* Status Dot Styles */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-loading { background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; } /* Amber-400 */
+        .status-success { background-color: #4ade80; box-shadow: 0 0 8px #4ade80; } /* Green-400 */
+        .status-error { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; } /* Red-500 */
+
+        /* 初始加載遮罩 */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff7ed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ea580c;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-orange-50">
+    <!-- 初始加載畫面，防止白屏 -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p class="mt-4 text-orange-600 font-bold">正在載入木蘭詩測驗庫...</p>
+    </div>
+
+    <div id="root"></div>
+
+    <!-- 1. 模組預加載器 (Module Pre-loader) -->
+    <!-- 修復白屏的關鍵：先載入模組，掛載到 window，再執行 React -->
+    <script type="module">
+        // 導入 React
+        import React from "https://esm.sh/react@18.2.0";
+        import ReactDOM from "https://esm.sh/react-dom@18.2.0/client";
+        
+        // 導入 UI 組件库 Lucide React
+        import * as Lucide from "https://esm.sh/lucide-react@0.263.1";
+        
+        // 導入特效库
+        import confetti from "https://esm.sh/canvas-confetti@1.9.2";
+        
+        // 導入 Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // 將模組掛載到全局 window 對象
+        window.React = React;
+        window.ReactDOM = ReactDOM;
+        window.Lucide = Lucide;
+        window.confetti = confetti;
+        window.Firebase = {
+            initializeApp,
+            getFirestore, collection, doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc,
+            getAuth, signInAnonymously, onAuthStateChanged
+        };
+
+        // 通知應用程序依賴已準備就緒
+        window.dispatchEvent(new Event('modules-loaded'));
+    </script>
+
+    <!-- 2. 主應用程序邏輯 (Main App Logic) -->
+    <script type="text/babel">
+        // 等待模組加載完成後再啟動 React
+        window.addEventListener('modules-loaded', () => {
+            initApp();
+        });
+
+        // 保險起見的檢查
+        if (window.React && window.Firebase) {
+             setTimeout(initApp, 100);
+        }
+
+        function initApp() {
+            // 隱藏加載畫面
+            const loader = document.getElementById('loading-overlay');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 500);
+            }
+
+            // --- 變量解構 (替代 import) ---
+            const { useState, useEffect, useCallback } = window.React;
+            const { createRoot } = window.ReactDOM;
+            const { BookOpen, List, Sun, User, LogOut, Zap, Heart, BookX, CheckCircle, XCircle, Tag, X } = window.Lucide;
+            const confetti = window.confetti;
+            
+            // Firebase 函數解構
+            const { initializeApp, getFirestore, collection, doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove, deleteDoc, getAuth, signInAnonymously, onAuthStateChanged } = window.Firebase;
+
+            // --- Firebase Configuration ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyAxQFt76ZPXE7d0i1XeNZ1yiiD2WYNIfHs",
+                authDomain: "chinese-learning-47f4d.firebaseapp.com",
+                projectId: "chinese-learning-47f4d",
+                storageBucket: "chinese-learning-47f4d.firebasestorage.app",
+                messagingSenderId: "76289812052",
+                appId: "1:76289812052:web:898384a916f9f341f62fc1"
+            };
+
+            // Initialize Firebase
+            let app, db, auth;
+            try {
+                if (firebaseConfig.apiKey !== "請填入您的API_KEY") {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                } else {
+                    console.warn("尚未設定 Firebase Config");
+                }
+            } catch (e) {
+                console.error("Firebase Init Error:", e);
+            }
+
+            // --- CONSTANTS ---
+            const STORAGE_PREFIX = 'Chinese4-L2-1';
+            const COLLECTION_NAME = 'Chinese4-L2-1'; 
+            const DOC_GLOBAL = 'global_users'; 
+
+            // 題庫：木蘭詩 100 題 (涵蓋字音形義、修辭、文法、道明風格素養題)
+            const rawData = [
+                // --- 字音字形篇 (1-20) ---
+                { id: 1, char: "字音", question: "機「杼」聲", answer: "ㄓㄨˋ", partOfSpeech: "名詞", meaning: "織布機上的梭子。", sentence: "借代為織布的工作。", distractors: ["ㄕㄨ", "ㄩˋ", "ㄇㄠˊ"] },
+                { id: 2, char: "字音", question: "鞍「韉」", answer: "ㄐㄧㄢ", partOfSpeech: "名詞", meaning: "馬鞍下的墊子。", sentence: "東市買駿馬，西市買鞍韉。", distractors: ["ㄐㄧㄢˋ", "ㄑㄧㄢ", "ㄘㄢˊ"] },
+                { id: 3, char: "字音", question: "「轡」頭", answer: "ㄆㄟˋ", partOfSpeech: "名詞", meaning: "控制馬匹的韁繩和馬嚼子。", sentence: "南市買轡頭，北市買長鞭。", distractors: ["ㄌㄨˊ", "ㄐㄧㄚˋ", "ㄏㄜˊ"] },
+                { id: 4, char: "字音", question: "「濺濺」", answer: "ㄐㄧㄢ ㄐㄧㄢ", partOfSpeech: "狀聲詞", meaning: "水流聲。", sentence: "但聞黃河流水鳴濺濺。", distractors: ["ㄓㄢˋ ㄓㄢˋ", "ㄑㄧㄢˊ ㄑㄧㄢˊ", "ㄗㄢˋ ㄗㄢˋ"] },
+                { id: 5, char: "字音", question: "燕山胡「騎」", answer: "ㄐㄧˋ", partOfSpeech: "名詞", meaning: "騎兵。", sentence: "在文言文中作名詞「騎兵」時，讀作ㄐㄧˋ。", distractors: ["ㄑㄧˊ", "ㄑㄧ", "ㄧˋ"] },
+                { id: 6, char: "字音", question: "「啾啾」", answer: "ㄐㄧㄡ ㄐㄧㄡ", partOfSpeech: "狀聲詞", meaning: "馬鳴聲。", sentence: "但聞燕山胡騎鳴啾啾。", distractors: ["ㄑㄧㄡ ㄑㄧㄡ", "ㄐㄧㄠ ㄐㄧㄠ", "ㄗㄡ ㄗㄡ"] },
+                { id: 7, char: "字音", question: "赴「戎」機", answer: "ㄖㄨㄥˊ", partOfSpeech: "名詞", meaning: "軍事、軍隊。", sentence: "萬里赴戎機，關山度若飛。", distractors: ["ㄨˋ", "ㄕㄨˋ", "ㄒㄩ"] },
+                { id: 8, char: "字音", question: "「朔」氣", answer: "ㄕㄨㄛˋ", partOfSpeech: "形容詞", meaning: "北方的。", sentence: "朔氣傳金柝，寒光照鐵衣。", distractors: ["ㄙㄨˋ", "ㄙㄨ", "ㄕㄨㄛ"] },
+                { id: 9, char: "字音", question: "金「柝」", answer: "ㄊㄨㄛˋ", partOfSpeech: "名詞", meaning: "古時巡夜打更用的木梆。", sentence: "此處借指軍中的打更聲或銅鑼聲。", distractors: ["ㄓㄜˊ", "ㄔㄞ", "ㄙㄨˋ"] },
+                { id: 10, char: "字音", question: "「著」我舊時裳", answer: "ㄓㄨㄛˊ", partOfSpeech: "動詞", meaning: "穿。", sentence: "脫我戰時袍，著我舊時裳。", distractors: ["ㄓㄜ˙", "ㄓㄠ", "ㄓㄠˋ"] },
+                { id: 11, char: "字音", question: "「裳」", answer: "ㄔㄤˊ", partOfSpeech: "名詞", meaning: "古代指下裙，泛指衣服。", sentence: "著我舊時裳。", distractors: ["ㄕㄤ", "ㄕㄤˇ", "ㄉㄤ"] },
+                { id: 12, char: "字音", question: "雲「鬢」", answer: "ㄅㄧㄣˋ", partOfSpeech: "名詞", meaning: "臉頰兩旁靠近耳朵的頭髮。", sentence: "當窗理雲鬢，對鏡貼花黃。", distractors: ["ㄒㄩ", "ㄗㄞ", "ㄏㄨˊ"] },
+                { id: 13, char: "字音", question: "「傍」地走", answer: "ㄅㄤˋ", partOfSpeech: "動詞/副詞", meaning: "靠近、貼近。", sentence: "雙兔傍地走，安能辨我是雄雌？", distractors: ["ㄆㄤˊ", "ㄅㄤ", "ㄈㄤ"] },
+                { id: 14, char: "字音", question: "「撲」朔", answer: "ㄆㄨ", partOfSpeech: "動詞", meaning: "跳躍。", sentence: "雄兔腳撲朔。", distractors: ["ㄆㄨˊ", "ㄅㄛ", "ㄆㄠ"] },
+                { id: 15, char: "字形", question: "下列字形何者完全正確？", answer: "不聞機杼聲", partOfSpeech: "字形辨析", meaning: "杼：織布梭子。", sentence: "機「杼」才是正確字形。(A)應為發「抒」(B)應為「抒」情(C)應為「杼」軸。", distractors: ["不聞機抒聲", "不聞機抒生", "不聞機預聲"] },
+                { id: 16, char: "字形", question: "下列字形何者錯誤？", answer: "買鞍薦", partOfSpeech: "字形辨析", meaning: "正確應為「韉」(革部)。", sentence: "「韉」指馬鞍下的墊子，從革部。", distractors: ["買轡頭", "買長鞭", "買駿馬"] },
+                { id: 17, char: "字形", question: "「戌」守邊疆、「戎」馬一生、成「戊」之年，上述三個字的讀音依序為？", answer: "ㄒㄩ / ㄖㄨㄥˊ / ㄨˋ", partOfSpeech: "字形辨析", meaning: "戊(ㄨˋ)戌(ㄒㄩ)戎(ㄖㄨㄥˊ)戍(ㄕㄨˋ)極易混淆。", sentence: "戊(沒中間)、戌(一橫)、戍(一點)、戎(一撇十字)。", distractors: ["ㄕㄨˋ / ㄖㄨㄥˊ / ㄨˋ", "ㄒㄩ / ㄨˋ / ㄖㄨㄥˊ", "ㄨˋ / ㄕㄨˋ / ㄖㄨㄥˊ"] },
+                { id: 18, char: "字形", question: "下列哪一個「ㄅㄧㄢˋ」字用字錯誤？", answer: "「辦」別是非", partOfSpeech: "字形辨析", meaning: "正確應為「辨」。", sentence: "辨別(刀字中)、辯論(言字中)、辦事(力字中)、髮辮(糸字中)。", distractors: ["「辨」我是雄雌", "狡「辯」", "綁髮「辮」"] },
+                { id: 19, char: "字形", question: "「金柝、拆除、折返」三個字的部首依序是？", answer: "木 / 手 / 手", partOfSpeech: "字形辨析", meaning: "柝(木部) / 拆(手部) / 折(手部)。", sentence: "金柝是木頭做的梆子，所以是木部。", distractors: ["金 / 手 / 手", "木 / 斤 / 斤", "金 / 斤 / 斤"] },
+                { id: 20, char: "字形", question: "出「ㄍㄨㄛ」相扶將，填入正確的字形：", answer: "郭", partOfSpeech: "字形辨析", meaning: "郭：外城。", sentence: "出「郭」相扶將，指父母走到外城去迎接。", distractors: ["國", "鄗", "廓"] },
+
+                // --- 字義與詞義篇 (21-45) ---
+                { id: 21, char: "字義", question: "「當」戶織", answer: "對著", partOfSpeech: "介詞/動詞", meaning: "面對、對著。", sentence: "木蘭對著門織布。與「當」窗理雲鬢同義。", distractors: ["擔任", "抵充", "應該"] },
+                { id: 22, char: "字義", question: "問女何所「憶」", answer: "思念、想念", partOfSpeech: "動詞", meaning: "思念。", sentence: "問女兒心裡在想念什麼。", distractors: ["記憶", "回憶", "憂愁"] },
+                { id: 23, char: "字義", question: "「市」鞍馬", answer: "買", partOfSpeech: "動詞", meaning: "買。", sentence: "名詞轉動詞。願為買鞍馬，從此替爺征。", distractors: ["城市", "市集", "賣"] },
+                { id: 24, char: "字義", question: "「旦」辭爺孃去", answer: "早晨", partOfSpeech: "名詞", meaning: "早晨。", sentence: "早晨告別父母親離去。", distractors: ["白天", "明天", "一旦"] },
+                { id: 25, char: "字義", question: "萬里赴「戎機」", answer: "軍事行動", partOfSpeech: "名詞", meaning: "指戰爭、軍事。", sentence: "不遠萬里奔赴戰場。", distractors: ["戰鬥機", "國家機密", "敵軍陣營"] },
+                { id: 26, char: "字義", question: "關山「度」若飛", answer: "越過", partOfSpeech: "動詞", meaning: "越過、經過。", sentence: "像飛一樣地越過一道道的關口與山嶺。", distractors: ["測量", "法度", "推測"] },
+                { id: 27, char: "字義", question: "「朔」氣", answer: "北方的", partOfSpeech: "形容詞", meaning: "北方。", sentence: "朔氣指北方的寒氣。", distractors: ["寒冷的", "初一的", "悲傷的"] },
+                { id: 28, char: "字義", question: "「策」勳十二轉", answer: "記下", partOfSpeech: "動詞", meaning: "記錄。", sentence: "記下很大的功勞。勳：功勞。", distractors: ["策劃", "馬鞭", "鞭打"] },
+                { id: 29, char: "字義", question: "賞賜百千「強」", answer: "有餘", partOfSpeech: "形容詞", meaning: "有餘、略多。", sentence: "賞賜的財物成百成千還有餘。", distractors: ["勉強", "強大", "強迫"] },
+                { id: 30, char: "字義", question: "木蘭不用「尚書郎」", answer: "官職名", partOfSpeech: "名詞", meaning: "古代官名。", sentence: "木蘭不願意做尚書郎這個官職。", distractors: ["讀書人", "新郎", "皇帝"] },
+                { id: 31, char: "字義", question: "出「郭」相扶將", answer: "外城", partOfSpeech: "名詞", meaning: "外城。", sentence: "內城叫「城」，外城叫「郭」。", distractors: ["村莊", "家門", "國家"] },
+                { id: 32, char: "字義", question: "相「扶將」", answer: "攙扶", partOfSpeech: "動詞", meaning: "互相攙扶。", sentence: "形容父母年紀大，互相攙扶著走出外城迎接女兒。", distractors: ["帶領將軍", "扶持將軍", "將要扶起"] },
+                { id: 33, char: "字義", question: "「霍霍」", answer: "磨刀的聲音", partOfSpeech: "狀聲詞", meaning: "磨刀聲。", sentence: "磨刀霍霍向豬羊。", distractors: ["快速的樣子", "閃爍的樣子", "水流的聲音"] },
+                { id: 34, char: "字義", question: "對鏡貼「花黃」", answer: "古代婦女臉部裝飾", partOfSpeech: "名詞", meaning: "婦女貼在額頭上的黃色飾物。", sentence: "恢復女兒身的打扮。", distractors: ["黃色的花朵", "枯黃的樹葉", "黃色的胭脂"] },
+                { id: 35, char: "字義", question: "「火伴」皆驚忙", answer: "軍中同住的同袍", partOfSpeech: "名詞", meaning: "古代兵制，十人為一火，同火的人互稱火伴。後作「伙伴」。", sentence: "軍中一起煮飯生活的同袍。", distractors: ["一起玩火的伴侶", "伙食委員", "生火的工具"] },
+                { id: 36, char: "字義", question: "「安」能辨我是雄雌", answer: "怎麼", partOfSpeech: "疑問詞", meaning: "怎麼、如何。", sentence: "兩隻兔子貼著地面跑，怎麼能分辨哪隻是公的、哪隻是母的呢？", distractors: ["安全", "安置", "安穩"] },
+                { id: 37, char: "字義", question: "「惟」聞女嘆息", answer: "只", partOfSpeech: "副詞", meaning: "只、僅。", sentence: "只聽到木蘭嘆息的聲音。", distractors: ["思考", "但是", "因為"] },
+                { id: 38, char: "字義", question: "「軍帖」與「軍書」", answer: "皆指徵兵的文書", partOfSpeech: "名詞", meaning: "徵兵文書。", sentence: "兩者意義相同，為錯綜修辭（抽換詞面）。", distractors: ["前者是信件，後者是書籍", "前者是名單，後者是戰術", "前者是軍令，後者是歷史"] },
+                { id: 39, char: "字義", question: "「十二」卷 / 「十二」轉 / 「十二」年", answer: "皆指多數，非實際數字", partOfSpeech: "虛數", meaning: "古代常用三、六、九、十二代表多數。", sentence: "此處的十二皆為虛數，表示很多。", distractors: ["皆為精確的實際數字", "只有十二卷是實數", "只有十二年是實數"] },
+                { id: 40, char: "字義", question: "「爺孃」", answer: "父母", partOfSpeech: "名詞", meaning: "父母親。", sentence: "爺：父親。孃：母親。", distractors: ["祖父母", "長輩", "公婆"] },
+                { id: 41, char: "字義", question: "「旦」辭黃河去，「暮」至黑山頭", answer: "早晨 / 傍晚", partOfSpeech: "名詞", meaning: "早晨與傍晚。", sentence: "形容行軍速度極快，朝發夕至。", distractors: ["白天 / 黑夜", "今天 / 明天", "一日 / 一月"] },
+                { id: 42, char: "字義", question: "「但」聞黃河流水鳴濺濺", answer: "只", partOfSpeech: "副詞", meaning: "只。", sentence: "只聽到黃河的流水聲。", distractors: ["但是", "不但", "只要"] },
+                { id: 43, char: "字義", question: "「胡」騎", answer: "北方外族", partOfSpeech: "名詞", meaning: "古代對北方或西方外族的通稱。", sentence: "此指敵軍的騎兵。", distractors: ["胡亂", "胡說", "姓胡的"] },
+                { id: 44, char: "字義", question: "「策勳」", answer: "記功", partOfSpeech: "動詞", meaning: "記下功勞。", sentence: "策：記錄。勳：功勞。", distractors: ["策劃功勞", "獎賞", "升官"] },
+                { id: 45, char: "字義", question: "「迷離」", answer: "模糊不清的樣子", partOfSpeech: "形容詞", meaning: "眼睛微閉、模糊不清。", sentence: "雌兔眼迷離。", distractors: ["離開", "迷路", "分離"] },
+
+                // --- 修辭與語法篇 (46-65) - 包含道明風格分析題 ---
+                { id: 46, char: "修辭", question: "「東市買駿馬，西市買鞍韉，南市買轡頭，北市買長鞭」使用了何種修辭？", answer: "互文、排比", partOfSpeech: "修辭辨析", meaning: "互文見義。", sentence: "並非真的跑了四個市場各買一樣，而是指「到各處市集去買齊了裝備」。", distractors: ["借代、層遞", "誇飾、對偶", "轉化、類疊"] },
+                { id: 47, char: "修辭", question: "「將軍百戰死，壯士十年歸」意指？", answer: "將士們身經百戰，有的戰死，有的歸來。", partOfSpeech: "互文修辭", meaning: "上下句互相補充。", sentence: "這也是互文修辭，不是將軍一定死，壯士一定活。", distractors: ["將軍全部戰死，只有士兵回來", "將軍戰死一百次，壯士十年才回來", "將軍比較勇敢所以戰死"] },
+                { id: 48, char: "修辭", question: "「當窗理雲鬢，對鏡貼花黃」使用了互文修辭，意指？", answer: "對著窗戶和鏡子，梳理頭髮並貼上花黃。", partOfSpeech: "互文修辭", meaning: "上下兩句文意交錯補充。", sentence: "不可能只在窗邊梳頭不照鏡子，也不可能只對著鏡子貼花黃不梳頭。", distractors: ["先在窗邊梳頭，再走到鏡子前化妝", "白天在窗邊梳頭，晚上對鏡子化妝", "當窗戶打開時才照鏡子化妝"] },
+                { id: 49, char: "修辭", question: "下列何者「沒有」使用「借代」修辭？", answer: "「明堂」", partOfSpeech: "借代辨析", meaning: "明堂指天子理政的殿堂，非借代。", sentence: "(A)金「柝」借代巡夜(B)「鐵衣」借代軍裝(C)「雲鬢」借代婦女頭髮。", distractors: ["「金柝」", "「鐵衣」", "「雲鬢」"] },
+                { id: 50, char: "修辭", question: "「朔氣傳金柝，寒光照鐵衣」主要描寫何種情境？", answer: "邊塞軍營的苦寒與夜間守衛的艱辛。", partOfSpeech: "對偶/寫景", meaning: "透過視覺與聽覺寫出戰地生活。", sentence: "北風傳來打更聲，月光/雪光照著冰冷的鎧甲。", distractors: ["戰爭激烈的殺戮場面", "將士們思念家鄉的哀愁", "打勝仗後的慶功景象"] },
+                { id: 51, char: "語法", question: "【道明風格題】「旦辭黃河去，暮至黑山頭」句中省略了主語，下列何者省略的主語與之相同？", answer: "萬里赴戎機", partOfSpeech: "主語省略分析", meaning: "皆省略「木蘭」。", sentence: "「旦辭」與「萬里赴」主語皆為木蘭。「將軍百戰死」主語為將軍；「同行十二年」主語為木蘭與火伴。", distractors: ["將軍百戰死", "軍書十二卷", "同行十二年"] },
+                { id: 52, char: "修辭", question: "【道明風格題】木蘭詩中大量使用狀聲詞。下列「」中的詞語，何者『不是』狀聲詞？", answer: "「朔氣」傳金柝", partOfSpeech: "狀聲詞辨析", meaning: "朔氣：北方的寒氣，為名詞。", sentence: "唧唧(織布聲/嘆息聲)；濺濺(水流聲)；啾啾(馬鳴聲)。", distractors: ["不聞機杼聲，「唧唧」復唧唧", "但聞黃河流水鳴「濺濺」", "但聞燕山胡騎鳴「啾啾」"] },
+                { id: 53, char: "修辭", question: "「阿爺無大兒，木蘭無長兄」使用了何種修辭法？", answer: "換文(錯綜的一種)", partOfSpeech: "修辭辨析", meaning: "抽換詞面。", sentence: "「阿爺」對應「木蘭」，「大兒」對應「長兄」，意義相同但變換用詞。", distractors: ["頂真", "層遞", "誇飾"] },
+                { id: 54, char: "修辭", question: "下列哪一句「沒有」使用「誇飾」修辭？", answer: "阿爺無大兒，木蘭無長兄", partOfSpeech: "誇飾辨析", meaning: "此為陳述事實。", sentence: "「十二卷」、「萬里」、「十二轉」、「百千強」皆含有數字誇飾(虛數)。", distractors: ["軍書十二卷", "萬里赴戎機", "策勳十二轉，賞賜百千強"] },
+                { id: 55, char: "修辭", question: "「爺孃聞女來...阿姊聞妹來...小弟聞姊來...」使用了何種修辭？", answer: "排比", partOfSpeech: "修辭辨析", meaning: "結構相似的句子接連出現。", sentence: "連續三個「...聞...來，...」的句型，營造出全家總動員的歡樂氣氛。", distractors: ["對偶", "層遞", "頂真"] },
+                { id: 56, char: "修辭", question: "「問女何所思，問女何所憶」屬於設問中的哪一類？", answer: "提問", partOfSpeech: "設問辨析", meaning: "自問自答。", sentence: "後面接著回答「女亦無所思，女亦無所憶」，故為提問。", distractors: ["激問", "懸問", "反問"] },
+                { id: 57, char: "語法", question: "下列「」中字詞的詞性，何者前後相同？", answer: "願為「市」鞍馬 / 東「市」買駿馬", partOfSpeech: "詞性辨析", meaning: "前者動詞(買)，後者名詞(市場)。皆不同。", sentence: "抱歉，選項皆不同。(A)市:動/名。(B)騎:名(騎兵)/動(騎馬)。(C)火:名(火伴)/名(烈火)。(D)策:動(記錄)/名(馬鞭)。此題為【錯誤選項展示題】。", distractors: ["燕山胡「騎」 / 「騎」馬打仗", "「火」伴皆驚忙 / 熊熊烈「火」", "「策」勳十二轉 / 舉「策」擊馬"] },
+                { id: 58, char: "語法", question: "【道明風格題】「脫我戰時袍，著我舊時裳。」句型為「動詞+受詞」，下列何者句型與此相同？", answer: "開我東閣門", partOfSpeech: "句型分析", meaning: "敘事句(動+受)。", sentence: "開(動詞)我東閣門(受詞)。「木蘭當戶織」為主語+述語。「寒光照鐵衣」為主+動+受。「天子坐明堂」為主+動+補。", distractors: ["木蘭當戶織", "寒光照鐵衣", "天子坐明堂"] },
+                { id: 59, char: "修辭", question: "「開我東閣門，坐我西閣牀」所用的修辭，與下列何者相同？", answer: "當窗理雲鬢，對鏡貼花黃", partOfSpeech: "修辭辨析", meaning: "皆為互文、對偶。", sentence: "皆為上下句互相補充的互文修辭。", distractors: ["將軍百戰死，壯士十年歸", "朔氣傳金柝，寒光照鐵衣", "旦辭爺孃去，暮宿黃河邊"] },
+                { id: 60, char: "修辭", question: "「雄兔腳撲朔，雌兔眼迷離；雙兔傍地走，安能辨我是雄雌？」以兔子為喻，使用了何種修辭？", answer: "譬喻、設問", partOfSpeech: "修辭辨析", meaning: "借物喻人，激問結尾。", sentence: "用兔子比喻男女穿上軍裝後難以辨別，並以反問(激問)語氣收尾。", distractors: ["轉化、誇飾", "借代、層遞", "排比、對偶"] },
+
+                // --- 詩意理解與主旨 (61-90) ---
+                { id: 61, char: "文意", question: "《木蘭詩》開頭「唧唧復唧唧，木蘭當戶織。不聞機杼聲，惟聞女嘆息。」營造出何種氛圍？", answer: "心事重重，充滿憂慮", partOfSpeech: "文意推論", meaning: "木蘭停機嘆息。", sentence: "沒有織布聲只有嘆息聲，暗示木蘭有重大心事，為下文代父從軍埋下伏筆。", distractors: ["悠閒自在，歲月靜好", "悲傷欲絕，痛哭流涕", "生病虛弱，無法工作"] },
+                { id: 62, char: "文意", question: "「女亦無所思，女亦無所憶」表達了木蘭怎樣的心境？", answer: "沒有兒女情長的私心，只有對家庭國家的大愛", partOfSpeech: "文意推論", meaning: "表明嘆息不是因為私情。", sentence: "澄清自己不是在思念意中人，而是擔憂父親被徵召。", distractors: ["腦袋空空，什麼都沒想", "已經忘記了過去的回憶", "假裝堅強，其實心裡害怕"] },
+                { id: 63, char: "文意", question: "「軍書十二卷，卷卷有爺名」說明了什麼情況？", answer: "軍情緊急，徵兵迫切", partOfSpeech: "文意推論", meaning: "強調非去不可。", sentence: "十二卷是極言其多，每一卷都有父親的名字，表示徵兵命令非常急迫且無法逃避。", distractors: ["父親是非常出名的將軍", "木蘭家裡收到了很多封信", "軍隊的書記官寫錯了名字"] },
+                { id: 64, char: "文意", question: "「東市買駿馬...北市買長鞭」除了表現木蘭購買裝備，還暗示了什麼？", answer: "出征前的準備工作繁瑣，且木蘭行動果決", partOfSpeech: "文意推論", meaning: "透過排比與互文展現節奏。", sentence: "連跑四個市場，顯示出征前的匆忙與木蘭果斷的行動力。", distractors: ["當時的市場規劃非常凌亂", "木蘭非常喜歡逛街買東西", "軍隊完全不提供任何裝備"] },
+                { id: 65, char: "文意", question: "「旦辭爺孃去...但聞黃河流水鳴濺濺」寫出木蘭的心情為何？", answer: "思鄉情切，卻又堅毅赴戰", partOfSpeech: "文意推論", meaning: "離家漸遠的孤寂與堅定。", sentence: "聽不到父母的呼喚，只聽見黃河水聲，烘托出一個少女離家遠赴戰場的孤單與思鄉之情。", distractors: ["迫不及待想上戰場殺敵", "對父母的呼喚感到厭煩", "欣賞黃河的壯麗風景"] },
+                { id: 66, char: "文意", question: "詩中「萬里赴戎機，關山度若飛。朔氣傳金柝，寒光照鐵衣。將軍百戰死，壯士十年歸。」僅用短短六句概括十年的戰爭，這種寫法稱為？", answer: "繁簡得當(詳略得宜)", partOfSpeech: "寫作手法", meaning: "略寫戰爭，詳寫辭家與歸鄉。", sentence: "本詩重點在於讚揚木蘭的孝心與不慕名利，而非歌頌戰爭，故戰爭過程極度簡略。", distractors: ["敷衍了事", "首尾呼應", "開門見山"] },
+                { id: 67, char: "文意", question: "木蘭立下大功，天子「策勳十二轉，賞賜百千強」，木蘭的反應是？", answer: "拒絕官職，只求返鄉", partOfSpeech: "文意推論", meaning: "不慕榮華富貴。", sentence: "「木蘭不用尚書郎，願馳千里足，送兒還故鄉。」展現其純真與孝順。", distractors: ["欣然接受，光宗耀祖", "嫌棄官位太小，要求更高", "將賞賜分給戰死的同袍"] },
+                { id: 68, char: "文意", question: "「爺孃聞女來，出郭相扶將」呈現出怎樣的情景？", answer: "父母年邁，聽聞女兒歸來，激動且急切地出城迎接", partOfSpeech: "文意推論", meaning: "親情流露。", sentence: "「扶將」二字生動寫出老年人互相攙扶，步履蹣跚卻又急迫盼望女兒歸來的心情。", distractors: ["父母請將軍幫忙迎接女兒", "父母身體很好，跑到城外", "父母被強迫出去迎接"] },
+                { id: 69, char: "文意", question: "「小弟聞姊來，磨刀霍霍向豬羊」表現出何種氣氛？", answer: "準備豐盛菜餚，充滿歡樂慶祝的氣氛", partOfSpeech: "文意推論", meaning: "歡樂喜慶。", sentence: "透過弟弟急切磨刀準備殺豬宰羊的動作，烘托出全家團聚的狂喜。", distractors: ["弟弟生氣，準備要打架", "家裡很窮，只好殺豬", "暗示戰爭的殘酷與血腥"] },
+                { id: 70, char: "文意", question: "木蘭回到家後「開我東閣門，坐我西閣牀，脫我戰時袍，著我舊時裳。」這一連串的動作代表什麼意義？", answer: "卸下軍人身分，恢復女性生活的喜悅與自在", partOfSpeech: "文意推論", meaning: "回歸真我。", sentence: "一連串輕快的動作，展現木蘭回到溫暖家中的放鬆，以及重新做回女性的開心。", distractors: ["家裡房子很大，到處亂跑", "嫌棄戰袍太髒，急著換洗", "故意向家人炫耀自己的房間"] },
+                { id: 71, char: "文意", question: "「出門看火伴，火伴皆驚忙：同行十二年，不知木蘭是女郎。」這段情節的作用為何？", answer: "透過同袍的驚訝，側面烘托木蘭在軍中隱藏性別的謹慎與艱辛", partOfSpeech: "寫作手法", meaning: "側面烘托。", sentence: "十二年來未被發現，可見木蘭行事多麼小心，戰場生活多麼克制，更凸顯其偉大。", distractors: ["嘲笑軍中同袍太過愚笨", "暗示木蘭長得很像男生", "為了製造戲劇性的喜劇效果"] },
+                { id: 72, char: "文意", question: "結尾「雙兔傍地走，安能辨我是雄雌？」以此作結，有何深意？", answer: "打破性別刻板印象，讚頌女性的能力不亞於男性", partOfSpeech: "主旨分析", meaning: "性別平權/女力展現。", sentence: "穿上戰袍在戰場上殺敵時，男女的能力是難以分辨的，展現了巾幗不讓須眉的氣概。", distractors: ["說明兔子跑得很快很難抓", "感嘆戰爭讓人變得雌雄莫辨", "諷刺當時軍隊招兵買馬不嚴格"] },
+                { id: 73, char: "文意", question: "【道明風格題】歐陽脩〈六一居士傳〉中藉由名號表達人生態度。若為《木蘭詩》的木蘭下一個最精準的標籤，下列何者最適合？", answer: "孝勇雙全，不慕榮利", partOfSpeech: "綜合推論", meaning: "總結木蘭的人格特質。", sentence: "代父從軍為「孝」，百戰沙場為「勇」，不用尚書郎為「不慕榮利」。", distractors: ["功成名就，光耀門楣", "委曲求全，逆來順受", "好勇鬥狠，揚名立萬"] },
+                { id: 74, char: "文意", question: "「將軍百戰死，壯士十年歸」一句中，為何詩人不多做戰爭血腥的描寫？", answer: "因為本詩的主旨在於頌揚木蘭的孝道與愛國，而非強調戰爭的殘酷", partOfSpeech: "寫作目的", meaning: "樂府敘事詩的側重點。", sentence: "雖然點出戰爭殘酷(百戰死)，但詩歌重心在於木蘭如何完成使命並回歸家庭。", distractors: ["因為木蘭其實沒有參加戰鬥", "因為古代不允許描寫血腥場面", "因為詩人自己沒打過仗寫不出來"] },
+                { id: 75, char: "文意", question: "關於《木蘭詩》的敘事結構，下列何者正確？", answer: "以「辭家」與「歸鄉」為詳寫，中間「征戰」為略寫", partOfSpeech: "結構分析", meaning: "詳略得宜。", sentence: "這種安排突出了木蘭身為女兒家的情感與對家庭的眷戀。", distractors: ["完全按照時間順序，平均分配篇幅", "詳寫戰場殺敵，略寫回家團聚", "只寫出征前，戰爭與回家皆略寫"] },
+
+                // --- 延伸應用與成語 (76-90) ---
+                { id: 76, char: "成語", question: "成語「撲朔迷離」源自《木蘭詩》。下列情境何者最適合使用此成語？", answer: "這起凶殺案的線索錯綜複雜，案情令人「撲朔迷離」", partOfSpeech: "成語應用", meaning: "形容事物錯綜複雜，難以明瞭真相。", sentence: "原指兩兔奔跑難辨雌雄，後引申為案情或事情難以看清真相。", distractors: ["她看著窗外的雨景，眼神「撲朔迷離」", "他做起事來總是「撲朔迷離」，非常果斷", "這對雙胞胎長得太像，真是「撲朔迷離」"] },
+                { id: 77, char: "成語", question: "下列哪一個成語最適合用來形容花木蘭的表現？", answer: "巾幗不讓須眉", partOfSpeech: "成語應用", meaning: "比喻女性的才華能力不輸給男性。", sentence: "巾幗指女性的頭巾，須眉指男性的鬍鬚眉毛。", distractors: ["沉魚落雁", "牝雞司晨", "柔弱生之徒"] },
+                { id: 78, char: "成語", question: "木蘭「不用尚書郎」，這種視名利如浮雲的態度，可用哪一句成語形容？", answer: "高風亮節", partOfSpeech: "成語應用", meaning: "形容品格高尚，有堅貞的節操。", sentence: "木蘭不貪圖高官厚祿，品德高尚。(A)錙銖必較(B)利慾薰心(C)沽名釣譽皆為貶義。", distractors: ["錙銖必較", "利慾薰心", "沽名釣譽"] },
+                { id: 79, char: "成語", question: "「爺孃聞女來，出郭相扶將」表達了父母對子女深切的愛。下列何者亦有此意？", answer: "舐犢情深", partOfSpeech: "成語應用", meaning: "比喻父母疼愛子女的情深。", sentence: "舐犢指老牛舔小牛。", distractors: ["烏鳥私情", "椿萱並茂", "寸草春暉"] },
+                { id: 80, char: "成語", question: "木蘭經歷十年的沙場生涯，可說是身經百戰。下列何者『不適合』形容老練的將士？", answer: "紙上談兵", partOfSpeech: "成語應用", meaning: "比喻不切實際的空談。", sentence: "紙上談兵指沒有實戰經驗，不適合形容木蘭。", distractors: ["老馬識途", "久經沙場", "百戰不殆"] },
+                { id: 81, char: "國學", question: "《木蘭詩》屬於「樂府詩」。關於樂府詩的特色，下列何者正確？", answer: "可配樂歌唱，句數與字數大多自由不拘", partOfSpeech: "國學常識", meaning: "樂府詩的體制。", sentence: "樂府詩本為民間歌謠，可入樂，格式較為自由，不講究平仄與嚴格對仗。", distractors: ["必須字數、句數嚴格限制", "一定要講究平仄與對仗", "只能由皇帝親自創作"] },
+                { id: 82, char: "國學", question: "《木蘭詩》與哪一首詩並稱為中國文學史上的「樂府雙璧」？", answer: "孔雀東南飛", partOfSpeech: "國學常識", meaning: "樂府雙璧。", sentence: "北朝民歌《木蘭詩》與漢代樂府《孔雀東南飛》合稱樂府雙璧。", distractors: ["長恨歌", "琵琶行", "飲馬長城窟行"] },
+                { id: 83, char: "比較", question: "【道明風格題】同樣描寫戰爭，王昌齡〈出塞〉：「秦時明月漢時關，萬里長征人未還。」與《木蘭詩》中哪一句的情感最相近？", answer: "將軍百戰死，壯士十年歸", partOfSpeech: "詩意比較", meaning: "皆點出戰爭的殘酷與生還的艱難。", sentence: "「人未還」與「百戰死」皆流露出對戰爭帶來傷亡與分離的慨嘆。", distractors: ["萬里赴戎機，關山度若飛", "旦辭爺孃去，暮宿黃河邊", "朔氣傳金柝，寒光照鐵衣"] },
+                { id: 84, char: "比較", question: "《木蘭詩》是「北朝民歌」，北朝民歌的風格通常為何？", answer: "質樸豪放，剛健質直", partOfSpeech: "國學常識", meaning: "北朝文學特色。", sentence: "受北方游牧民族影響，風格雄健豪放；南朝民歌則多婉約柔美。", distractors: ["柔美婉約，纏綿悱惻", "華麗雕琢，辭藻華美", "說理深奧，枯燥乏味"] },
+                { id: 85, char: "綜合", question: "下列關於《木蘭詩》的敘述，何者『錯誤』？", answer: "作者為唐代知名詩人白居易", partOfSpeech: "綜合分析", meaning: "作者為佚名(無名氏)。", sentence: "《木蘭詩》為北朝民歌，作者不可考(佚名)，後收錄於宋代郭茂倩編的《樂府詩集》。", distractors: ["是一首敘事詩", "收錄於《樂府詩集》", "全詩使用許多排比與互文修辭"] },
+
+                // --- 深度挑戰與綜合分析 (91-100) ---
+                { id: 86, char: "綜合", question: "「旦辭爺孃去，暮宿黃河邊...旦辭黃河去，暮至黑山頭...」這兩段反覆出現的句型，主要想表達什麼？", answer: "行軍速度極快，離家越來越遠", partOfSpeech: "結構分析", meaning: "時空轉換的急促。", sentence: "透過「旦...暮...」的句型反覆，強調軍情緊急，木蘭離家鄉已經十分遙遠。", distractors: ["木蘭每天都在迷路", "軍隊的作息非常規律", "黃河與黑山距離很近"] },
+                { id: 87, char: "綜合", question: "【道明風格題】柳宗元〈烏賊求全〉諷刺不知隱藏本質的人。反觀木蘭在軍中十二年「不知木蘭是女郎」，她能成功隱藏身分的原因，最不可能是？", answer: "買通將領幫忙掩護", partOfSpeech: "素養推論", meaning: "木蘭的謹慎與戰爭的艱苦。", sentence: "詩中未提及買通將領。成功隱藏是因為她戰鬥勇敢、行事謹慎，且戰地生活艱苦無暇顧及私事。", distractors: ["木蘭本身行事極為謹慎", "戰地生活艱苦，無暇顧及他人隱私", "木蘭作戰英勇，大家將其視為真漢子"] },
+                { id: 88, char: "綜合", question: "下列哪一句最能表現出木蘭「女兒當自強」的豪情？", answer: "願為市鞍馬，從此替爺征", partOfSpeech: "文意推論", meaning: "主動承擔責任。", sentence: "在無長兄的情況下，木蘭主動挺身而出，展現出不畏艱難的豪情壯志。", distractors: ["當窗理雲鬢，對鏡貼花黃", "唧唧復唧唧，木蘭當戶織", "小弟聞姊來，磨刀霍霍向豬羊"] },
+                { id: 89, char: "綜合", question: "「同行十二年，不知木蘭是女郎」這句話中的「十二年」為虛數，下列成語何者『沒有』使用虛數？", answer: "三頭六臂", partOfSpeech: "修辭辨析", meaning: "三頭六臂指真的有三個頭六隻手(神話)。", sentence: "抱歉，選項調整：(A)三心二意(虛) (B)千軍萬馬(虛) (C)五臟六腑(實)。", distractors: ["千軍萬馬", "三心二意", "百發百中"] },
+                { id: 90, char: "綜合", question: "木蘭詩中「阿姊聞妹來，當戶理紅妝」，這裡的「紅妝」指的是什麼？", answer: "婦女的妝飾", partOfSpeech: "詞義推測", meaning: "借代婦女妝容。", sentence: "指姐姐梳妝打扮，準備迎接妹妹歸來。", distractors: ["紅色的嫁衣", "紅色的戰袍", "家中的紅色裝飾品"] },
+                { id: 91, char: "綜合", question: "「問女何所思，問女何所憶」連用兩次「問女」，在文學表達上有何效果？", answer: "表現出關切探問的語氣，加強懸念", partOfSpeech: "修辭效果", meaning: "類疊的作用。", sentence: "透過重複詢問，帶出讀者的好奇心，也表現出父母(或旁人)對木蘭嘆息的關心。", distractors: ["表示木蘭聽力不好", "因為有兩個人同時在問", "純粹為了湊足字數"] },
+                { id: 92, char: "綜合", question: "木蘭回鄉後，家人「出郭」、「理紅妝」、「磨刀霍霍」，這些動作描寫的順序有何用意？", answer: "依長幼次序，展現全家不同身分迎接木蘭的生動姿態", partOfSpeech: "寫作手法", meaning: "層次分明。", sentence: "父母年邁走得慢但迫切出城；姐姐愛美在家化妝；弟弟年輕有力準備酒肉，描寫極具畫面感。", distractors: ["隨便亂寫的順序", "暗示弟弟最不關心木蘭", "表示木蘭最喜歡弟弟"] },
+                { id: 93, char: "字義", question: "「著」我舊時裳 的「著」字，與下列何者讀音相同？", answer: "「著」涼", partOfSpeech: "字音辨析", meaning: "皆音 ㄓㄨㄛˊ。", sentence: "著我舊時裳(ㄓㄨㄛˊ)、著涼(ㄓㄨㄛˊ)。(A)顯「著」(ㄓㄨˋ) (B)「著」火(ㄓㄠˊ) (C)順著(ㄓㄜ˙)。", distractors: ["顯「著」", "「著」火", "順「著」"] },
+                { id: 94, char: "字形", question: "下列形似字，何組讀音『完全不同』？", answer: "杼 / 抒 / 紓", partOfSpeech: "字音辨析", meaning: "杼(ㄓㄨˋ)/抒(ㄕㄨ)/紓(ㄕㄨ)。", sentence: "杼是ㄓㄨˋ，其他兩個是ㄕㄨ。(A)韉/薦皆ㄐㄧㄢ (B)柝/拓皆ㄊㄨㄛˋ (C)傍/磅皆ㄅㄤˋ。", distractors: ["韉 / 薦", "柝 / 拓", "傍 / 磅"] },
+                { id: 95, char: "語法", question: "【道明風格題】文言文中常省略代詞。下列「」中的字，何者『不是』指代「木蘭」？", answer: "「將軍」百戰死", partOfSpeech: "指代分析", meaning: "指將軍。", sentence: "將軍指帶兵的將領。(A)「女」亦無所思 (B)送「兒」還故鄉 (C)安能辨「我」是雄雌，皆指木蘭。", distractors: ["「女」亦無所思", "送「兒」還故鄉", "安能辨「我」是雄雌"] },
+                { id: 96, char: "文意", question: "「可汗大點兵」中的「可汗」是指什麼人？", answer: "古代北方外族對君長的稱呼", partOfSpeech: "國學常識", meaning: "君主稱號。", sentence: "北朝為胡人建立的政權，故稱君主為「可汗」。", distractors: ["木蘭的父親", "敵軍的將領", "村長"] },
+                { id: 97, char: "綜合", question: "木蘭詩中大量使用「東、西、南、北」等方位詞，如「東市...西市...」，這種手法在古典詩歌中稱為？", answer: "鋪陳（排比互文）", partOfSpeech: "寫作手法", meaning: "鋪敘渲染。", sentence: "藉由方位的鋪陳，渲染出奔波忙碌、急切準備的氣氛。", distractors: ["借景抒情", "托物言志", "象徵"] },
+                { id: 98, char: "綜合", question: "「胡騎鳴啾啾」中的「胡」字，在古代常帶有何種色彩？", answer: "中原漢人對周邊民族的泛稱，有時帶有敵意或貶義", partOfSpeech: "文化常識", meaning: "古代夷夏觀念。", sentence: "古代漢人自稱華夏，稱周邊為蠻夷戎狄或胡人。", distractors: ["表示非常尊敬的稱號", "專指姓胡的人建立的國家", "代表來自西域的商人"] },
+                { id: 99, char: "文意", question: "木蘭詩中哪一句最能展現出木蘭「不貪戀權力，保有純真本性」的高貴情操？", answer: "木蘭不用尚書郎", partOfSpeech: "主旨分析", meaning: "淡泊名利。", sentence: "面對天子的重賞與高官，木蘭斷然拒絕，只想回家，顯示其純真無私。", distractors: ["萬里赴戎機", "將軍百戰死", "脫我戰時袍"] },
+                { id: 100, char: "綜合", question: "總結《木蘭詩》的文學價值，下列敘述何者最適當？", answer: "成功塑造了中國文學史上第一位勇敢、孝順且不慕榮利的平民女性英雄", partOfSpeech: "文學價值", meaning: "木蘭形象的經典性。", sentence: "木蘭不同於傳統嬌弱的女性形象，她是孝順、勇敢、純真、平民化的英雄代表。", distractors: ["是一部記錄北朝真實歷史的官方史書", "是第一首嚴格遵守平仄對仗的近體詩", "專門用來教導女性必須待在閨房的教材"] }
+            ];
+
+            // --- Helper Functions ---
+            const shuffleArray = (array) => {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            };
+
+            const playSound = (type) => {
+                const audioPath = type === 'success' ? 'sounds/correct.mp3' : 'sounds/fail.mp3';
+                const audio = new Audio(audioPath);
+                audio.play().catch(err => console.log('Audio play error:', err));
+            }
+
+            const App = () => {
+                const [mode, setMode] = useState('menu'); 
+                const [currentUser, setCurrentUser] = useState(null);
+                const [users, setUsers] = useState([]);
+                const [favorites, setFavorites] = useState(new Set());
+                const [mistakes, setMistakes] = useState(new Set());
+                const [quizProgress, setQuizProgress] = useState({});
+                
+                const [isFirebaseReady, setIsFirebaseReady] = useState(false);
+                const [connectionStatus, setConnectionStatus] = useState('loading'); 
+                const [statusText, setStatusText] = useState('讀取資料中...');
+
+                // 1. Firebase Auth & Global Users Listener
+                useEffect(() => {
+                    if (!auth) {
+                        setConnectionStatus('offline');
+                        setStatusText('離線模式');
+                        return;
+                    }
+
+                    const initAuth = async () => {
+                        try {
+                            setConnectionStatus('loading');
+                            setStatusText('讀取資料中...');
+                            await signInAnonymously(auth);
+                        } catch (error) {
+                            console.error("Auth Error:", error);
+                            setConnectionStatus('error');
+                            setStatusText('雲端同步失敗');
+                        }
+                    };
+                    initAuth();
+
+                    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            setIsFirebaseReady(true);
+                            
+                            const globalRef = doc(db, COLLECTION_NAME, DOC_GLOBAL);
+                            const unsubscribeGlobal = onSnapshot(globalRef, (docSnap) => {
+                                if (docSnap.exists()) {
+                                    setUsers(docSnap.data().list || []);
+                                } else {
+                                    setDoc(globalRef, { list: [] }, { merge: true });
+                                    setUsers([]);
+                                }
+                                setConnectionStatus('success');
+                                setStatusText('已同步');
+                            }, (error) => {
+                                console.error("Global Sync Error:", error);
+                                setConnectionStatus('error');
+                                setStatusText('雲端同步失敗');
+                            });
+
+                            return () => unsubscribeGlobal();
+                        } else {
+                            setIsFirebaseReady(false);
+                        }
+                    });
+
+                    return () => unsubscribeAuth();
+                }, []);
+
+                // 2. User Data Listener
+                useEffect(() => {
+                    if (currentUser && isFirebaseReady && db) {
+                        const userRef = doc(db, COLLECTION_NAME, currentUser);
+                        
+                        const unsubscribeUser = onSnapshot(userRef, (docSnap) => {
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                setFavorites(new Set(data.favorites || []));
+                                setMistakes(new Set(data.mistakes || []));
+                                setQuizProgress(data.quizProgress || {});
+                            } else {
+                                setFavorites(new Set());
+                                setMistakes(new Set());
+                                setQuizProgress({});
+                            }
+                            setConnectionStatus('success');
+                            setStatusText('已同步');
+                        }, (error) => {
+                            console.error("User Sync Error:", error);
+                            setConnectionStatus('error');
+                            setStatusText('雲端同步失敗');
+                        });
+
+                        return () => unsubscribeUser();
+                    } else {
+                        setFavorites(new Set());
+                        setMistakes(new Set());
+                        setQuizProgress({});
+                    }
+                }, [currentUser, isFirebaseReady]);
+
+                const handleLogin = async (name) => {
+                    if (!name.trim()) return;
+                    if (!db) {
+                        setCurrentUser(name);
+                        setMode('menu');
+                        return;
+                    }
+                    try {
+                        const globalRef = doc(db, COLLECTION_NAME, DOC_GLOBAL);
+                        await setDoc(globalRef, { list: arrayUnion(name) }, { merge: true });
+                        setCurrentUser(name);
+                        setMode('menu');
+                    } catch (e) {
+                        console.error("Login Error:", e);
+                        alert("登入失敗，請檢查網路連線");
+                    }
+                };
+
+                const handleDeleteUser = async (userToDelete) => {
+                    if (!db) return;
+                    if (window.confirm(`確定要刪除「${userToDelete}」的紀錄嗎？`)) {
+                        if (window.confirm(`刪除後無法復原，您真的確定要刪除「${userToDelete}」嗎？`)) {
+                            try {
+                                const globalRef = doc(db, COLLECTION_NAME, DOC_GLOBAL);
+                                await updateDoc(globalRef, { list: arrayRemove(userToDelete) });
+                                
+                                const userRef = doc(db, COLLECTION_NAME, userToDelete);
+                                await deleteDoc(userRef);
+
+                                if (currentUser === userToDelete) {
+                                    handleLogout();
+                                }
+                            } catch (e) {
+                                console.error("Delete Error:", e);
+                                alert("刪除失敗，請稍後再試");
+                            }
+                        }
+                    }
+                };
+
+                const handleLogout = () => {
+                    setCurrentUser(null);
+                    setMode('menu');
+                };
+
+                const saveUserData = useCallback(async (dataToUpdate) => {
+                    if(!currentUser || !isFirebaseReady || !db) return;
+                    try {
+                        setConnectionStatus('loading');
+                        const userRef = doc(db, COLLECTION_NAME, currentUser);
+                        await setDoc(userRef, dataToUpdate, { merge: true });
+                        setTimeout(() => setConnectionStatus('success'), 500); 
+                    } catch (e) {
+                        console.error("Save Error:", e);
+                        setConnectionStatus('error');
+                        setStatusText('雲端同步失敗');
+                    }
+                }, [currentUser, isFirebaseReady]);
+
+                const toggleFavorite = useCallback((id) => {
+                    if (!currentUser) return;
+                    const newFavorites = new Set(favorites);
+                    if (newFavorites.has(id)) newFavorites.delete(id);
+                    else newFavorites.add(id);
+                    
+                    setFavorites(newFavorites);
+                    saveUserData({ favorites: [...newFavorites] });
+                }, [favorites, currentUser, saveUserData]);
+
+                const addMistake = useCallback((id) => {
+                    if (!currentUser) return;
+                    const newMistakes = new Set(mistakes);
+                    if (!newMistakes.has(id)) {
+                        newMistakes.add(id);
+                        setMistakes(newMistakes);
+                        saveUserData({ mistakes: [...newMistakes] });
+                    }
+                }, [mistakes, currentUser, saveUserData]);
+
+                const updateQuizProgress = useCallback((newProgress) => {
+                    if(!currentUser) return;
+                    setQuizProgress(newProgress);
+                    saveUserData({ quizProgress: newProgress });
+                }, [currentUser, saveUserData]);
+
+                if (!currentUser) return <LoginView users={users} onLogin={handleLogin} onDeleteUser={handleDeleteUser} connectionStatus={connectionStatus} statusText={statusText} />;
+                
+                return (
+                    <div className="min-h-screen bg-orange-50 text-stone-800 font-sans">
+                        <header className="bg-orange-600 text-white p-4 shadow-lg sticky top-0 z-20">
+                            <div className="max-w-4xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setMode('menu')}>
+                                <BookOpen size={28} />
+                                <div className="flex flex-col">
+                                    <h1 className="text-xl md:text-2xl font-bold tracking-wider">L2木蘭詩</h1>
+                                    <h2 className="text-xs text-orange-200">綜合測驗挑戰</h2>
+                                </div>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                <div className="hidden sm:flex items-center bg-black/20 px-3 py-1 rounded-full text-xs" title={statusText}>
+                                    <span className={`status-dot status-${connectionStatus}`}></span>
+                                    <span className="text-white/90">{statusText}</span>
+                                </div>
+
+                                <div className="hidden md:flex items-center bg-orange-700 px-3 py-1 rounded-full text-sm">
+                                    <User size={16} className="mr-2"/>
+                                    <span className="font-bold truncate max-w-[100px]">{currentUser}</span>
+                                </div>
+                                {mode !== 'menu' && (
+                                    <button onClick={() => setMode('menu')} className="text-orange-100 hover:text-white transition font-medium">回首頁</button>
+                                )}
+                                <button onClick={handleLogout} className="flex items-center text-orange-200 hover:text-white transition" title="登出">
+                                    <LogOut size={20} />
+                                </button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <main className="max-w-4xl mx-auto p-4 md:p-6">
+                            {mode === 'menu' && (
+                                <div className="flex flex-col items-center justify-center space-y-8 py-12 animate-in fade-in duration-500">
+                                <div className="text-center space-y-4">
+                                    <div className="bg-orange-100 p-4 rounded-full inline-block mb-2">
+                                    <Sun size={48} className="text-orange-500" />
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-orange-900">歡迎回來，{currentUser}</h2>
+                                    <p className="text-stone-600 text-lg max-w-md">請選擇下列功能開始進行木蘭詩測驗</p>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+                                    <MenuButton onClick={() => setMode('study')} icon={<List size={40} className="text-orange-600" />} title="題庫總覽" desc="完整檢視100題精華解析" />
+                                    <MenuButton onClick={() => setMode('quiz')} icon={<Zap size={40} className="text-orange-600" />} title="閃電刷題" desc="瀑布流式連續挑戰" />
+                                    <MenuButton onClick={() => setMode('favorites')} icon={<Heart size={40} className="text-red-500 fill-red-500" />} title="我的最愛" desc="複習您收藏的重點題目" highlight="red" />
+                                    <MenuButton onClick={() => setMode('mistakes')} icon={<BookX size={40} className="text-stone-600" />} title="錯題複習" desc="針對答錯的題目加強練習" highlight="stone" />
+                                </div>
+
+                                <div style={{ marginTop: '20px' }}>
+                                    <a href="index.html" 
+                                       className="btn btn-gray" 
+                                       style={{
+                                           textDecoration: 'none', 
+                                           padding: '10px 20px',
+                                           background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
+                                           color: 'white', 
+                                           borderRadius: '999px', 
+                                           display: 'inline-block'
+                                       }}>
+                                        🏠 返回國文學習 App 總部
+                                    </a>
+                                </div>
+                                </div>
+                            )}
+
+                            {mode === 'study' && <StudyView data={rawData} favorites={favorites} onToggleFavorite={toggleFavorite} title="木蘭詩全題庫解析" />}
+                            {mode === 'favorites' && <StudyView data={rawData.filter(item => favorites.has(item.id))} favorites={favorites} onToggleFavorite={toggleFavorite} title="我的最愛清單" emptyMessage="您還沒有加入任何最愛題目喔！" />}
+                            {mode === 'mistakes' && <StudyView data={rawData.filter(item => mistakes.has(item.id))} favorites={favorites} onToggleFavorite={toggleFavorite} title="錯題複習本" emptyMessage="太棒了！目前沒有錯題紀錄。" />}
+                            {mode === 'quiz' && <WaterfallQuizView data={rawData} initialProgress={quizProgress} onUpdateProgress={updateQuizProgress} favorites={favorites} onToggleFavorite={toggleFavorite} onAddMistake={addMistake} onExit={() => setMode('menu')} />}
+                        </main>
+                    </div>
+                );
+            };
+
+            const MenuButton = ({ onClick, icon, title, desc, highlight = "orange" }) => {
+                const bgClass = highlight === "red" ? "bg-red-50" : highlight === "stone" ? "bg-stone-100" : "bg-orange-100";
+                return (
+                    <button onClick={onClick} className="flex flex-col items-center p-8 bg-white rounded-2xl shadow-sm hover:shadow-xl hover:bg-orange-50 transition border-2 border-orange-100 hover:border-orange-300 group">
+                        <div className={`${bgClass} p-4 rounded-full mb-4 group-hover:scale-110 transition`}>{icon}</div>
+                        <h3 className="text-xl font-bold text-orange-900">{title}</h3>
+                        <p className="text-stone-500 mt-2">{desc}</p>
+                    </button>
+                )
+            }
+
+            const LoginView = ({ users, onLogin, onDeleteUser, connectionStatus, statusText }) => {
+                const [inputName, setInputName] = useState("");
+                return (
+                    <div className="min-h-screen bg-orange-50 flex items-center justify-center p-4">
+                        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-2 border-orange-100 relative">
+                            <div className="absolute top-4 right-4 flex items-center bg-stone-100 px-2 py-1 rounded-full text-xs">
+                                <span className={`status-dot status-${connectionStatus}`}></span>
+                                <span className="text-stone-600">{statusText}</span>
+                            </div>
+
+                            <div className="text-center mb-8">
+                                <div className="bg-orange-100 p-3 rounded-full inline-block mb-4"><BookOpen size={40} className="text-orange-600" /></div>
+                                <h1 className="text-2xl font-bold text-orange-900">木蘭詩綜合測驗</h1>
+                                <p className="text-stone-500 mt-2">請輸入姓名以開始學習</p>
+                            </div>
+                            <form onSubmit={(e) => { e.preventDefault(); if(inputName.trim()) onLogin(inputName.trim()); }} className="space-y-4">
+                                <input type="text" value={inputName} onChange={(e) => setInputName(e.target.value)} placeholder="輸入您的名字" className="w-full px-4 py-3 rounded-xl border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" autoFocus />
+                                <button type="submit" disabled={!inputName.trim() || connectionStatus === 'loading'} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-lg transition disabled:opacity-50">開始挑戰</button>
+                            </form>
+                            
+                            <div className="mt-8">
+                                <div className="relative mb-4"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200"></div></div><div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-stone-500">快速登入</span></div></div>
+                                
+                                {users.length > 0 ? (
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {users.map((user, idx) => (
+                                            <div key={idx} className="relative group">
+                                                <button 
+                                                    onClick={() => onLogin(user)} 
+                                                    className="w-full px-4 py-3 bg-stone-100 hover:bg-orange-100 text-stone-700 hover:text-orange-900 rounded-xl text-base font-bold transition flex items-center justify-center shadow-sm hover:shadow"
+                                                >
+                                                    {user}
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); onDeleteUser(user); }}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600 transition shadow-md"
+                                                    title="刪除使用者"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-4 bg-orange-50/50 rounded-xl border border-dashed border-orange-200">
+                                        <p className="text-orange-800 font-medium">尚無挑戰者紀錄，歡迎加入！</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const StudyView = ({ data, favorites, onToggleFavorite, title, emptyMessage = "沒有找到符合的資料" }) => {
+                const [searchTerm, setSearchTerm] = useState("");
+                const filteredData = data.filter(item => item.question.includes(searchTerm) || item.answer.includes(searchTerm) || item.char.includes(searchTerm));
+
+                return (
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-orange-200">
+                        <h2 className="text-xl font-bold text-orange-900 flex items-center"><List className="mr-2" size={24} />{title}</h2>
+                        <input type="text" placeholder="搜尋題目、關鍵字、類別..." className="px-4 py-2 rounded-lg border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 w-full md:w-64 bg-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    </div>
+                    
+                    {filteredData.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-4">
+                        {filteredData.map((item) => (
+                            <div key={item.id} className="bg-white rounded-xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition">
+                                <div className="p-4 bg-orange-50 border-b border-orange-100 flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <span className="bg-orange-200 text-orange-800 text-xs font-bold px-2 py-1 rounded">#{item.id}</span>
+                                        <span className="bg-stone-200 text-stone-700 text-xs font-bold px-2 py-1 rounded">{item.char}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button onClick={() => onToggleFavorite(item.id)} className={`transition transform active:scale-90 p-1 rounded-full hover:bg-orange-100 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400'}`}>
+                                            <Heart size={20} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="text-xl font-bold text-stone-800 mb-4">{item.question}</h3>
+                                    <div className="bg-green-50 border-l-4 border-green-500 p-3 mb-4 rounded-r-lg">
+                                        <span className="text-sm font-bold text-green-700 block mb-1">正解：</span>
+                                        <span className="text-lg font-bold text-green-900">{item.answer}</span>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">重點觀念</span>
+                                                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded flex items-center"><Tag size={12} className="mr-1"/>{item.partOfSpeech}</span>
+                                            </div>
+                                            <p className="text-stone-700 mt-1 font-medium">{item.meaning}</p>
+                                        </div>
+                                        <div className="bg-stone-50 p-3 rounded-lg border border-stone-100">
+                                            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">詳解說明</span>
+                                            <p className="text-stone-600 mt-1 leading-relaxed">{item.sentence}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        </div>
+                    ) : (
+                        <div className="p-12 text-center text-stone-400 bg-white rounded-xl border border-dashed border-stone-300">
+                            <List size={48} className="mx-auto mb-4 opacity-50" />
+                            <p>{emptyMessage}</p>
+                        </div>
+                    )}
+                    <div className="text-center text-sm text-stone-500 mt-4">顯示 {filteredData.length} 筆資料</div>
+                    </div>
+                );
+            };
+
+            const WaterfallQuizView = ({ data, initialProgress, onUpdateProgress, favorites, onToggleFavorite, onAddMistake, onExit }) => {
+                const [quizData, setQuizData] = useState([]);
+                const [selections, setSelections] = useState(initialProgress || {});
+
+                useEffect(() => {
+                    const preparedData = data.map(item => ({ ...item, options: shuffleArray([item.answer, ...item.distractors]) }));
+                    setQuizData(preparedData);
+                    if(initialProgress) {
+                        setSelections(initialProgress);
+                    }
+                }, [data, initialProgress]);
+
+                const handleSelect = (questionId, option) => {
+                    const newSelections = { ...selections, [questionId]: option };
+                    setSelections(newSelections);
+                    onUpdateProgress(newSelections);
+                    
+                    const currentQuestion = data.find(item => item.id === questionId);
+                    const isCorrect = option === currentQuestion.answer;
+                    if (isCorrect) {
+                        playSound('success');
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    } else {
+                        playSound('error');
+                        onAddMistake(questionId);
+                    }
+                };
+                
+                const completedCount = Object.keys(selections).length;
+                const progress = Math.round((completedCount / data.length) * 100);
+
+                return (
+                    <div className="max-w-4xl mx-auto pb-20">
+                    <div className="sticky top-16 z-10 bg-orange-50/95 backdrop-blur-sm pt-4 pb-2 border-b border-orange-200 mb-6 shadow-sm">
+                        <div className="flex justify-between items-center mb-2 px-2">
+                            <div>
+                                <h2 className="text-xl font-bold text-orange-900 flex items-center gap-2"><Zap size={24} className="fill-orange-500 text-orange-600"/>閃電刷題</h2>
+                                <p className="text-xs text-stone-500 mt-1">已完成: {completedCount} / {data.length} 題</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button onClick={() => { if(window.confirm('確定要清空進度重來嗎？')) { const empty = {}; setSelections(empty); onUpdateProgress(empty); window.scrollTo(0,0); }}} className="px-3 py-1.5 bg-white border border-orange-300 text-orange-700 rounded-lg hover:bg-orange-50 font-medium text-xs sm:text-sm transition">重置</button>
+                                <button onClick={onExit} className="px-3 py-1.5 bg-stone-600 text-white rounded-lg hover:bg-stone-700 font-medium text-xs sm:text-sm transition">暫停</button>
+                            </div>
+                        </div>
+                        <div className="w-full bg-orange-200 h-2.5 rounded-full overflow-hidden"><div className="bg-orange-600 h-2.5 rounded-full progress-bar shadow-[0_0_10px_rgba(249,115,22,0.5)]" style={{ width: `${progress}%` }}></div></div>
+                    </div>
+
+                    <div className="space-y-6">
+                        {quizData.map((item) => {
+                            const userSelection = selections[item.id];
+                            const isAnswered = userSelection !== undefined;
+                            const isCorrect = userSelection === item.answer;
+                            
+                            return (
+                                <div key={item.id} className={`bg-white rounded-xl shadow-sm border-2 transition-all duration-300 overflow-hidden ${isAnswered ? (isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50') : 'border-orange-100'}`}>
+                                    <div className="p-4 border-b border-black/5 flex items-start gap-3">
+                                        <div className="flex flex-col gap-1 shrink-0 mt-1">
+                                            <span className="bg-orange-100 text-orange-800 font-mono font-bold px-2 py-1 rounded text-sm text-center">#{item.id}</span>
+                                            <span className="bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded text-xs text-center">{item.char}</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }} className={`transition transform active:scale-90 p-1 rounded-full -ml-2 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400'}`}>
+                                                    <Heart size={20} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
+                                                </button>
+                                                <h3 className="text-xl md:text-2xl font-bold text-stone-800 leading-snug">{item.question}</h3>
+                                            </div>
+                                        </div>
+                                        {isAnswered && <div className="ml-auto shrink-0 mt-2">{isCorrect ? <CheckCircle className="text-green-500" size={28} /> : <XCircle className="text-red-500" size={28} />}</div>}
+                                    </div>
+                                    <div className="p-4 bg-white/50">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {item.options.map((option, idx) => {
+                                                // 調整按鈕字體大小以適應較長的文字
+                                                let btnClass = "py-3 px-4 rounded-lg font-bold text-lg md:text-xl transition-all border-2 relative text-left leading-snug ";
+                                                if (isAnswered) {
+                                                    if (option === item.answer) btnClass += "bg-green-500 text-white border-green-600 shadow-md";
+                                                    else if (option === userSelection && !isCorrect) btnClass += "bg-red-500 text-white border-red-600 shadow-md";
+                                                    else btnClass += "bg-stone-100 text-stone-400 border-transparent opacity-50";
+                                                } else {
+                                                    btnClass += "bg-white text-stone-700 border-stone-200 hover:border-orange-400 hover:bg-orange-50 active:scale-95";
+                                                }
+                                                return <button key={idx} onClick={() => !isAnswered && handleSelect(item.id, option)} disabled={isAnswered} className={btnClass}>{option}</button>;
+                                            })}
+                                        </div>
+                                        {isAnswered && (
+                                            <div className="mt-4 pt-4 border-t border-black/5 animate-in fade-in slide-in-from-top-2">
+                                                <div className="bg-white/60 p-4 rounded-lg border border-stone-100">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <span className="text-sm font-bold text-stone-500">重點解析</span>
+                                                        <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded flex items-center"><Tag size={12} className="mr-1"/>{item.partOfSpeech}</span>
+                                                    </div>
+                                                    <p className="text-stone-800 font-bold mb-2">{item.meaning}</p>
+                                                    <p className="text-stone-600 leading-relaxed">{item.sentence}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {progress === 100 && (
+                        <div className="mt-8 p-8 bg-green-100 rounded-2xl text-center border-2 border-green-300 animate-in zoom-in duration-300">
+                            <h3 className="text-2xl font-bold text-green-800 mb-2">太棒了！您已完成木蘭詩 100 題完整挑戰！</h3>
+                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="mt-4 text-green-700 underline hover:text-green-900">回到頂部</button>
+                        </div>
+                    )}
+                    </div>
+                );
+            };
+
+            const root = createRoot(document.getElementById('root'));
+            root.render(<App />);
+        }
+    </script>
+</body>
+</html>
