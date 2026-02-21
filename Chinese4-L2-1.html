@@ -693,13 +693,18 @@
                 const [quizData, setQuizData] = useState([]);
                 const [selections, setSelections] = useState(initialProgress || {});
 
+                // 1. 處理選項洗牌（只在載入題庫時執行一次，防止點擊選項後重新洗牌導致跳動）
                 useEffect(() => {
                     const preparedData = data.map(item => ({ ...item, options: shuffleArray([item.answer, ...item.distractors]) }));
                     setQuizData(preparedData);
+                }, [data]);
+
+                // 2. 處理進度同步
+                useEffect(() => {
                     if(initialProgress) {
                         setSelections(initialProgress);
                     }
-                }, [data, initialProgress]);
+                }, [initialProgress]);
 
                 const handleSelect = (questionId, option) => {
                     const newSelections = { ...selections, [questionId]: option };
