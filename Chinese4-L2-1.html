@@ -12,15 +12,15 @@
     <style>
         /* Custom scrollbar for better aesthetics */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
         }
         ::-webkit-scrollbar-track {
             background: #fff7ed; 
         }
         ::-webkit-scrollbar-thumb {
             background: #fdba74; 
-            border-radius: 4px;
+            border-radius: 5px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #fb923c; 
@@ -41,11 +41,11 @@
         
         /* Status Dot Styles */
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: inline-block;
-            margin-right: 6px;
+            margin-right: 8px;
         }
         .status-loading { background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; } /* Amber-400 */
         .status-success { background-color: #4ade80; box-shadow: 0 0 8px #4ade80; } /* Green-400 */
@@ -67,21 +67,21 @@
             transition: opacity 0.5s;
         }
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #ea580c;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ea580c;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-orange-50">
+<body class="bg-orange-50 text-lg">
     <!-- 初始加載畫面，防止白屏 -->
     <div id="loading-overlay">
         <div class="spinner"></div>
-        <p class="mt-4 text-orange-600 font-bold">正在載入木蘭詩測驗庫...</p>
+        <p class="mt-6 text-xl text-orange-600 font-bold">正在載入木蘭詩測驗庫...</p>
     </div>
 
     <div id="root"></div>
@@ -491,58 +491,59 @@
                 
                 return (
                     <div className="min-h-screen bg-orange-50 text-stone-800 font-sans">
-                        <header className="bg-orange-600 text-white p-4 shadow-lg sticky top-0 z-20">
-                            <div className="max-w-4xl mx-auto flex justify-between items-center">
-                                <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setMode('menu')}>
-                                <BookOpen size={28} />
+                        <header className="bg-orange-600 text-white p-4 md:p-5 shadow-lg sticky top-0 z-20">
+                            <div className="max-w-6xl mx-auto flex justify-between items-center">
+                                <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setMode('menu')}>
+                                <BookOpen size={36} />
                                 <div className="flex flex-col">
-                                    <h1 className="text-xl md:text-2xl font-bold tracking-wider">L2木蘭詩</h1>
-                                    <h2 className="text-xs text-orange-200">綜合測驗挑戰</h2>
+                                    <h1 className="text-2xl md:text-3xl font-bold tracking-wider">L2木蘭詩</h1>
+                                    <h2 className="text-sm md:text-base text-orange-200">綜合測驗挑戰</h2>
                                 </div>
                                 </div>
                                 <div className="flex items-center space-x-4">
-                                <div className="hidden sm:flex items-center bg-black/20 px-3 py-1 rounded-full text-xs" title={statusText}>
+                                <div className="hidden sm:flex items-center bg-black/20 px-4 py-1.5 rounded-full text-sm" title={statusText}>
                                     <span className={`status-dot status-${connectionStatus}`}></span>
                                     <span className="text-white/90">{statusText}</span>
                                 </div>
 
-                                <div className="hidden md:flex items-center bg-orange-700 px-3 py-1 rounded-full text-sm">
-                                    <User size={16} className="mr-2"/>
-                                    <span className="font-bold truncate max-w-[100px]">{currentUser}</span>
+                                <div className="hidden md:flex items-center bg-orange-700 px-4 py-1.5 rounded-full text-base">
+                                    <User size={20} className="mr-2"/>
+                                    <span className="font-bold truncate max-w-[120px]">{currentUser}</span>
                                 </div>
                                 {mode !== 'menu' && (
-                                    <button onClick={() => setMode('menu')} className="text-orange-100 hover:text-white transition font-medium">回首頁</button>
+                                    <button onClick={() => setMode('menu')} className="text-orange-100 text-lg hover:text-white transition font-medium">回首頁</button>
                                 )}
                                 <button onClick={handleLogout} className="flex items-center text-orange-200 hover:text-white transition" title="登出">
-                                    <LogOut size={20} />
+                                    <LogOut size={24} />
                                 </button>
                                 </div>
                             </div>
                         </header>
 
-                        <main className="max-w-4xl mx-auto p-4 md:p-6">
+                        <main className="max-w-6xl mx-auto p-4 md:p-8">
                             {mode === 'menu' && (
-                                <div className="flex flex-col items-center justify-center space-y-8 py-12 animate-in fade-in duration-500">
-                                <div className="text-center space-y-4">
-                                    <div className="bg-orange-100 p-4 rounded-full inline-block mb-2">
-                                    <Sun size={48} className="text-orange-500" />
+                                <div className="flex flex-col items-center justify-center space-y-10 py-16 animate-in fade-in duration-500">
+                                <div className="text-center space-y-5">
+                                    <div className="bg-orange-100 p-5 rounded-full inline-block mb-2">
+                                    <Sun size={64} className="text-orange-500" />
                                     </div>
-                                    <h2 className="text-3xl font-bold text-orange-900">歡迎回來，{currentUser}</h2>
-                                    <p className="text-stone-600 text-lg max-w-md">請選擇下列功能開始進行木蘭詩測驗</p>
+                                    <h2 className="text-4xl font-bold text-orange-900">歡迎回來，{currentUser}</h2>
+                                    <p className="text-stone-600 text-xl max-w-lg mx-auto">請選擇下列功能開始進行木蘭詩測驗</p>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-                                    <MenuButton onClick={() => setMode('study')} icon={<List size={40} className="text-orange-600" />} title="題庫總覽" desc="完整檢視100題精華解析" />
-                                    <MenuButton onClick={() => setMode('quiz')} icon={<Zap size={40} className="text-orange-600" />} title="閃電刷題" desc="瀑布流式連續挑戰" />
-                                    <MenuButton onClick={() => setMode('favorites')} icon={<Heart size={40} className="text-red-500 fill-red-500" />} title="我的最愛" desc="複習您收藏的重點題目" highlight="red" />
-                                    <MenuButton onClick={() => setMode('mistakes')} icon={<BookX size={40} className="text-stone-600" />} title="錯題複習" desc="針對答錯的題目加強練習" highlight="stone" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+                                    <MenuButton onClick={() => setMode('study')} icon={<List size={56} className="text-orange-600" />} title="題庫總覽" desc="完整檢視100題精華解析" />
+                                    <MenuButton onClick={() => setMode('quiz')} icon={<Zap size={56} className="text-orange-600" />} title="閃電刷題" desc="瀑布流式連續挑戰" />
+                                    <MenuButton onClick={() => setMode('favorites')} icon={<Heart size={56} className="text-red-500 fill-red-500" />} title="我的最愛" desc="複習您收藏的重點題目" highlight="red" />
+                                    <MenuButton onClick={() => setMode('mistakes')} icon={<BookX size={56} className="text-stone-600" />} title="錯題複習" desc="針對答錯的題目加強練習" highlight="stone" />
                                 </div>
 
-                                <div style={{ marginTop: '20px' }}>
+                                <div style={{ marginTop: '40px' }}>
                                     <a href="index.html" 
-                                       className="btn btn-gray" 
+                                       className="btn btn-gray font-bold shadow-md hover:shadow-lg transition-transform hover:scale-105" 
                                        style={{
                                            textDecoration: 'none', 
-                                           padding: '10px 20px',
+                                           padding: '16px 32px',
+                                           fontSize: '1.25rem',
                                            background: 'linear-gradient(135deg, #ff4081 0%, #d81b60 100%)',
                                            color: 'white', 
                                            borderRadius: '999px', 
@@ -566,10 +567,10 @@
             const MenuButton = ({ onClick, icon, title, desc, highlight = "orange" }) => {
                 const bgClass = highlight === "red" ? "bg-red-50" : highlight === "stone" ? "bg-stone-100" : "bg-orange-100";
                 return (
-                    <button onClick={onClick} className="flex flex-col items-center p-8 bg-white rounded-2xl shadow-sm hover:shadow-xl hover:bg-orange-50 transition border-2 border-orange-100 hover:border-orange-300 group">
-                        <div className={`${bgClass} p-4 rounded-full mb-4 group-hover:scale-110 transition`}>{icon}</div>
-                        <h3 className="text-xl font-bold text-orange-900">{title}</h3>
-                        <p className="text-stone-500 mt-2">{desc}</p>
+                    <button onClick={onClick} className="flex flex-col items-center p-10 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:bg-orange-50 transition border-2 border-orange-100 hover:border-orange-300 group">
+                        <div className={`${bgClass} p-5 rounded-full mb-5 group-hover:scale-110 transition`}>{icon}</div>
+                        <h3 className="text-2xl font-bold text-orange-900">{title}</h3>
+                        <p className="text-lg text-stone-500 mt-3">{desc}</p>
                     </button>
                 )
             }
@@ -577,49 +578,49 @@
             const LoginView = ({ users, onLogin, onDeleteUser, connectionStatus, statusText }) => {
                 const [inputName, setInputName] = useState("");
                 return (
-                    <div className="min-h-screen bg-orange-50 flex items-center justify-center p-4">
-                        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border-2 border-orange-100 relative">
-                            <div className="absolute top-4 right-4 flex items-center bg-stone-100 px-2 py-1 rounded-full text-xs">
+                    <div className="min-h-screen bg-orange-50 flex items-center justify-center p-4 md:p-6">
+                        <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-lg border-2 border-orange-100 relative">
+                            <div className="absolute top-5 right-5 flex items-center bg-stone-100 px-3 py-1.5 rounded-full text-sm">
                                 <span className={`status-dot status-${connectionStatus}`}></span>
-                                <span className="text-stone-600">{statusText}</span>
+                                <span className="text-stone-600 font-medium">{statusText}</span>
                             </div>
 
-                            <div className="text-center mb-8">
-                                <div className="bg-orange-100 p-3 rounded-full inline-block mb-4"><BookOpen size={40} className="text-orange-600" /></div>
-                                <h1 className="text-2xl font-bold text-orange-900">木蘭詩綜合測驗</h1>
-                                <p className="text-stone-500 mt-2">請輸入姓名以開始學習</p>
+                            <div className="text-center mb-10 mt-4">
+                                <div className="bg-orange-100 p-4 rounded-full inline-block mb-5"><BookOpen size={56} className="text-orange-600" /></div>
+                                <h1 className="text-3xl font-bold text-orange-900">木蘭詩綜合測驗</h1>
+                                <p className="text-xl text-stone-500 mt-3">請輸入姓名以開始學習</p>
                             </div>
-                            <form onSubmit={(e) => { e.preventDefault(); if(inputName.trim()) onLogin(inputName.trim()); }} className="space-y-4">
-                                <input type="text" value={inputName} onChange={(e) => setInputName(e.target.value)} placeholder="輸入您的名字" className="w-full px-4 py-3 rounded-xl border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg" autoFocus />
-                                <button type="submit" disabled={!inputName.trim() || connectionStatus === 'loading'} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-lg transition disabled:opacity-50">開始挑戰</button>
+                            <form onSubmit={(e) => { e.preventDefault(); if(inputName.trim()) onLogin(inputName.trim()); }} className="space-y-6">
+                                <input type="text" value={inputName} onChange={(e) => setInputName(e.target.value)} placeholder="輸入您的名字" className="w-full px-5 py-4 rounded-xl border-2 border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 text-xl" autoFocus />
+                                <button type="submit" disabled={!inputName.trim() || connectionStatus === 'loading'} className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold text-xl transition disabled:opacity-50 shadow-md">開始挑戰</button>
                             </form>
                             
-                            <div className="mt-8">
-                                <div className="relative mb-4"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200"></div></div><div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-stone-500">快速登入</span></div></div>
+                            <div className="mt-10">
+                                <div className="relative mb-6"><div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-stone-200"></div></div><div className="relative flex justify-center text-base"><span className="px-4 bg-white text-stone-500 font-medium">快速登入</span></div></div>
                                 
                                 {users.length > 0 ? (
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-4">
                                         {users.map((user, idx) => (
                                             <div key={idx} className="relative group">
                                                 <button 
                                                     onClick={() => onLogin(user)} 
-                                                    className="w-full px-4 py-3 bg-stone-100 hover:bg-orange-100 text-stone-700 hover:text-orange-900 rounded-xl text-base font-bold transition flex items-center justify-center shadow-sm hover:shadow"
+                                                    className="w-full px-5 py-4 bg-stone-100 hover:bg-orange-100 text-stone-700 hover:text-orange-900 rounded-xl text-lg font-bold transition flex items-center justify-center shadow-sm hover:shadow"
                                                 >
                                                     {user}
                                                 </button>
                                                 <button 
                                                     onClick={(e) => { e.stopPropagation(); onDeleteUser(user); }}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 hover:bg-red-600 transition shadow-md"
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 hover:bg-red-600 transition shadow-md"
                                                     title="刪除使用者"
                                                 >
-                                                    <X size={14} />
+                                                    <X size={18} />
                                                 </button>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-4 bg-orange-50/50 rounded-xl border border-dashed border-orange-200">
-                                        <p className="text-orange-800 font-medium">尚無挑戰者紀錄，歡迎加入！</p>
+                                    <div className="text-center py-6 bg-orange-50/50 rounded-xl border-2 border-dashed border-orange-200">
+                                        <p className="text-orange-800 text-lg font-medium">尚無挑戰者紀錄，歡迎加入！</p>
                                     </div>
                                 )}
                             </div>
@@ -633,45 +634,45 @@
                 const filteredData = data.filter(item => item.question.includes(searchTerm) || item.answer.includes(searchTerm) || item.char.includes(searchTerm));
 
                 return (
-                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-orange-200">
-                        <h2 className="text-xl font-bold text-orange-900 flex items-center"><List className="mr-2" size={24} />{title}</h2>
-                        <input type="text" placeholder="搜尋題目、關鍵字、類別..." className="px-4 py-2 rounded-lg border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 w-full md:w-64 bg-white" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-5 bg-white p-5 rounded-2xl shadow-sm border border-orange-200">
+                        <h2 className="text-2xl font-bold text-orange-900 flex items-center"><List className="mr-3 text-orange-600" size={32} />{title}</h2>
+                        <input type="text" placeholder="搜尋題目、關鍵字、類別..." className="px-5 py-3 rounded-xl border-2 border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400 w-full md:w-80 bg-white text-lg" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                     
                     {filteredData.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 gap-6">
                         {filteredData.map((item) => (
-                            <div key={item.id} className="bg-white rounded-xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-md transition">
-                                <div className="p-4 bg-orange-50 border-b border-orange-100 flex justify-between items-start">
-                                    <div className="flex items-center gap-3">
-                                        <span className="bg-orange-200 text-orange-800 text-xs font-bold px-2 py-1 rounded">#{item.id}</span>
-                                        <span className="bg-stone-200 text-stone-700 text-xs font-bold px-2 py-1 rounded">{item.char}</span>
+                            <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-orange-100 overflow-hidden hover:shadow-lg transition-shadow">
+                                <div className="p-5 bg-orange-50 border-b border-orange-100 flex justify-between items-start">
+                                    <div className="flex items-center gap-4">
+                                        <span className="bg-orange-200 text-orange-900 text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm">#{item.id}</span>
+                                        <span className="bg-stone-200 text-stone-800 text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm">{item.char}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <button onClick={() => onToggleFavorite(item.id)} className={`transition transform active:scale-90 p-1 rounded-full hover:bg-orange-100 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400'}`}>
-                                            <Heart size={20} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
+                                        <button onClick={() => onToggleFavorite(item.id)} className={`transition transform active:scale-90 p-2 rounded-full hover:bg-orange-100 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400'}`}>
+                                            <Heart size={28} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
                                         </button>
                                     </div>
                                 </div>
-                                <div className="p-5">
-                                    <h3 className="text-xl font-bold text-stone-800 mb-4">{item.question}</h3>
-                                    <div className="bg-green-50 border-l-4 border-green-500 p-3 mb-4 rounded-r-lg">
-                                        <span className="text-sm font-bold text-green-700 block mb-1">正解：</span>
-                                        <span className="text-lg font-bold text-green-900">{item.answer}</span>
+                                <div className="p-6 md:p-8">
+                                    <h3 className="text-2xl font-bold text-stone-800 mb-6 leading-snug">{item.question}</h3>
+                                    <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-xl">
+                                        <span className="text-base font-bold text-green-700 block mb-2">正解：</span>
+                                        <span className="text-2xl font-bold text-green-900">{item.answer}</span>
                                     </div>
                                     
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">重點觀念</span>
-                                                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded flex items-center"><Tag size={12} className="mr-1"/>{item.partOfSpeech}</span>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <span className="text-sm font-bold text-stone-400 uppercase tracking-wider">重點觀念</span>
+                                                <span className="bg-blue-100 text-blue-800 text-sm font-bold px-2 py-1 rounded-md flex items-center"><Tag size={16} className="mr-1"/>{item.partOfSpeech}</span>
                                             </div>
-                                            <p className="text-stone-700 mt-1 font-medium">{item.meaning}</p>
+                                            <p className="text-lg text-stone-700 mt-2 font-medium">{item.meaning}</p>
                                         </div>
-                                        <div className="bg-stone-50 p-3 rounded-lg border border-stone-100">
-                                            <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">詳解說明</span>
-                                            <p className="text-stone-600 mt-1 leading-relaxed">{item.sentence}</p>
+                                        <div className="bg-stone-50 p-5 rounded-xl border border-stone-200">
+                                            <span className="text-sm font-bold text-stone-400 uppercase tracking-wider">詳解說明</span>
+                                            <p className="text-lg text-stone-600 mt-3 leading-relaxed">{item.sentence}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -679,12 +680,12 @@
                         ))}
                         </div>
                     ) : (
-                        <div className="p-12 text-center text-stone-400 bg-white rounded-xl border border-dashed border-stone-300">
-                            <List size={48} className="mx-auto mb-4 opacity-50" />
-                            <p>{emptyMessage}</p>
+                        <div className="p-16 text-center text-stone-400 bg-white rounded-2xl border-2 border-dashed border-stone-300">
+                            <List size={64} className="mx-auto mb-5 text-stone-300" />
+                            <p className="text-xl font-medium">{emptyMessage}</p>
                         </div>
                     )}
-                    <div className="text-center text-sm text-stone-500 mt-4">顯示 {filteredData.length} 筆資料</div>
+                    <div className="text-center text-lg text-stone-500 mt-6 font-medium">目前顯示 {filteredData.length} 筆資料</div>
                     </div>
                 );
             };
@@ -726,68 +727,68 @@
                 const progress = Math.round((completedCount / data.length) * 100);
 
                 return (
-                    <div className="max-w-4xl mx-auto pb-20">
-                    <div className="sticky top-16 z-10 bg-orange-50/95 backdrop-blur-sm pt-4 pb-2 border-b border-orange-200 mb-6 shadow-sm">
-                        <div className="flex justify-between items-center mb-2 px-2">
+                    <div className="max-w-6xl mx-auto pb-24">
+                    <div className="sticky top-[76px] md:top-[84px] z-10 bg-orange-50/95 backdrop-blur-md pt-5 pb-3 border-b-2 border-orange-200 mb-8 shadow-sm">
+                        <div className="flex justify-between items-center mb-3 px-2">
                             <div>
-                                <h2 className="text-xl font-bold text-orange-900 flex items-center gap-2"><Zap size={24} className="fill-orange-500 text-orange-600"/>閃電刷題</h2>
-                                <p className="text-xs text-stone-500 mt-1">已完成: {completedCount} / {data.length} 題</p>
+                                <h2 className="text-2xl font-bold text-orange-900 flex items-center gap-2"><Zap size={32} className="fill-orange-500 text-orange-600"/>閃電刷題</h2>
+                                <p className="text-base text-stone-500 mt-1 font-medium">已完成: {completedCount} / {data.length} 題</p>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => { if(window.confirm('確定要清空進度重來嗎？')) { const empty = {}; setSelections(empty); onUpdateProgress(empty); window.scrollTo(0,0); }}} className="px-3 py-1.5 bg-white border border-orange-300 text-orange-700 rounded-lg hover:bg-orange-50 font-medium text-xs sm:text-sm transition">重置</button>
-                                <button onClick={onExit} className="px-3 py-1.5 bg-stone-600 text-white rounded-lg hover:bg-stone-700 font-medium text-xs sm:text-sm transition">暫停</button>
+                            <div className="flex gap-3">
+                                <button onClick={() => { if(window.confirm('確定要清空進度重來嗎？')) { const empty = {}; setSelections(empty); onUpdateProgress(empty); window.scrollTo(0,0); }}} className="px-4 py-2 bg-white border-2 border-orange-300 text-orange-700 rounded-xl hover:bg-orange-50 font-bold text-sm sm:text-base transition">重置</button>
+                                <button onClick={onExit} className="px-4 py-2 bg-stone-700 text-white rounded-xl hover:bg-stone-800 font-bold text-sm sm:text-base transition shadow-md">暫停</button>
                             </div>
                         </div>
-                        <div className="w-full bg-orange-200 h-2.5 rounded-full overflow-hidden"><div className="bg-orange-600 h-2.5 rounded-full progress-bar shadow-[0_0_10px_rgba(249,115,22,0.5)]" style={{ width: `${progress}%` }}></div></div>
+                        <div className="w-full bg-orange-200 h-3 rounded-full overflow-hidden"><div className="bg-orange-600 h-3 rounded-full progress-bar shadow-[0_0_12px_rgba(249,115,22,0.6)]" style={{ width: `${progress}%` }}></div></div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {quizData.map((item) => {
                             const userSelection = selections[item.id];
                             const isAnswered = userSelection !== undefined;
                             const isCorrect = userSelection === item.answer;
                             
                             return (
-                                <div key={item.id} className={`bg-white rounded-xl shadow-sm border-2 transition-all duration-300 overflow-hidden ${isAnswered ? (isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50') : 'border-orange-100'}`}>
-                                    <div className="p-4 border-b border-black/5 flex items-start gap-3">
-                                        <div className="flex flex-col gap-1 shrink-0 mt-1">
-                                            <span className="bg-orange-100 text-orange-800 font-mono font-bold px-2 py-1 rounded text-sm text-center">#{item.id}</span>
-                                            <span className="bg-stone-200 text-stone-700 font-bold px-2 py-1 rounded text-xs text-center">{item.char}</span>
+                                <div key={item.id} className={`bg-white rounded-2xl shadow-sm border-2 transition-all duration-300 overflow-hidden ${isAnswered ? (isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50') : 'border-orange-100 hover:border-orange-300'}`}>
+                                    <div className="p-5 md:p-6 border-b border-black/5 flex items-start gap-4">
+                                        <div className="flex flex-col gap-2 shrink-0 mt-1">
+                                            <span className="bg-orange-100 text-orange-900 font-mono font-bold px-3 py-1.5 rounded-lg text-base text-center shadow-sm">#{item.id}</span>
+                                            <span className="bg-stone-200 text-stone-800 font-bold px-3 py-1.5 rounded-lg text-sm text-center shadow-sm">{item.char}</span>
                                         </div>
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }} className={`transition transform active:scale-90 p-1 rounded-full -ml-2 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400'}`}>
-                                                    <Heart size={20} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
+                                            <div className="flex items-center gap-3">
+                                                <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }} className={`transition transform active:scale-90 p-2 rounded-full -ml-2 ${favorites.has(item.id) ? 'text-red-500' : 'text-stone-300 hover:text-red-400 hover:bg-white'}`}>
+                                                    <Heart size={28} className={favorites.has(item.id) ? "fill-current heart-click" : ""} />
                                                 </button>
-                                                <h3 className="text-xl md:text-2xl font-bold text-stone-800 leading-snug">{item.question}</h3>
+                                                <h3 className="text-2xl md:text-3xl font-bold text-stone-800 leading-snug">{item.question}</h3>
                                             </div>
                                         </div>
-                                        {isAnswered && <div className="ml-auto shrink-0 mt-2">{isCorrect ? <CheckCircle className="text-green-500" size={28} /> : <XCircle className="text-red-500" size={28} />}</div>}
+                                        {isAnswered && <div className="ml-auto shrink-0 mt-2">{isCorrect ? <CheckCircle className="text-green-500 drop-shadow-sm" size={36} /> : <XCircle className="text-red-500 drop-shadow-sm" size={36} />}</div>}
                                     </div>
-                                    <div className="p-4 bg-white/50">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="p-5 md:p-6 bg-white/60">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {item.options.map((option, idx) => {
                                                 // 調整按鈕字體大小以適應較長的文字
-                                                let btnClass = "py-3 px-4 rounded-lg font-bold text-lg md:text-xl transition-all border-2 relative text-left leading-snug ";
+                                                let btnClass = "py-4 px-6 rounded-xl font-bold text-xl md:text-2xl transition-all border-2 relative text-left leading-relaxed ";
                                                 if (isAnswered) {
-                                                    if (option === item.answer) btnClass += "bg-green-500 text-white border-green-600 shadow-md";
+                                                    if (option === item.answer) btnClass += "bg-green-500 text-white border-green-600 shadow-lg scale-[1.02] z-10";
                                                     else if (option === userSelection && !isCorrect) btnClass += "bg-red-500 text-white border-red-600 shadow-md";
-                                                    else btnClass += "bg-stone-100 text-stone-400 border-transparent opacity-50";
+                                                    else btnClass += "bg-stone-100 text-stone-400 border-transparent opacity-60";
                                                 } else {
-                                                    btnClass += "bg-white text-stone-700 border-stone-200 hover:border-orange-400 hover:bg-orange-50 active:scale-95";
+                                                    btnClass += "bg-white text-stone-700 border-stone-200 hover:border-orange-400 hover:bg-orange-50 hover:shadow-md active:scale-95";
                                                 }
                                                 return <button key={idx} onClick={() => !isAnswered && handleSelect(item.id, option)} disabled={isAnswered} className={btnClass}>{option}</button>;
                                             })}
                                         </div>
                                         {isAnswered && (
-                                            <div className="mt-4 pt-4 border-t border-black/5 animate-in fade-in slide-in-from-top-2">
-                                                <div className="bg-white/60 p-4 rounded-lg border border-stone-100">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className="text-sm font-bold text-stone-500">重點解析</span>
-                                                        <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded flex items-center"><Tag size={12} className="mr-1"/>{item.partOfSpeech}</span>
+                                            <div className="mt-6 pt-5 border-t border-black/10 animate-in fade-in slide-in-from-top-4">
+                                                <div className="bg-white/80 p-5 md:p-6 rounded-xl border border-stone-200 shadow-sm">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <span className="text-base font-bold text-stone-500">重點解析</span>
+                                                        <span className="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded-md flex items-center"><Tag size={16} className="mr-1"/>{item.partOfSpeech}</span>
                                                     </div>
-                                                    <p className="text-stone-800 font-bold mb-2">{item.meaning}</p>
-                                                    <p className="text-stone-600 leading-relaxed">{item.sentence}</p>
+                                                    <p className="text-xl text-stone-800 font-bold mb-3">{item.meaning}</p>
+                                                    <p className="text-lg text-stone-600 leading-relaxed bg-stone-50 p-4 rounded-lg">{item.sentence}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -797,9 +798,9 @@
                         })}
                     </div>
                     {progress === 100 && (
-                        <div className="mt-8 p-8 bg-green-100 rounded-2xl text-center border-2 border-green-300 animate-in zoom-in duration-300">
-                            <h3 className="text-2xl font-bold text-green-800 mb-2">太棒了！您已完成木蘭詩 100 題完整挑戰！</h3>
-                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="mt-4 text-green-700 underline hover:text-green-900">回到頂部</button>
+                        <div className="mt-10 p-10 bg-green-100 rounded-3xl text-center border-4 border-green-300 animate-in zoom-in duration-500 shadow-xl">
+                            <h3 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">🎉 太棒了！您已完成木蘭詩 100 題完整挑戰！</h3>
+                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="mt-6 text-xl text-green-700 font-bold underline hover:text-green-900">回到最上方</button>
                         </div>
                     )}
                     </div>
