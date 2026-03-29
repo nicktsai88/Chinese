@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國文講義互動系統 - L4 我所知道的康橋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body { background-color: white; color: black; }
+            .print-hidden { display: none !important; }
+            .print-block { display: block !important; }
+            .print-no-shadow { box-shadow: none !important; }
+            .print-m-0 { margin: 0 !important; }
+            .print-p-0 { padding: 0 !important; }
+            .print-max-w-none { max-width: none !important; }
+            .break-inside-avoid { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-800 font-sans">
+
+    <!-- 導覽列 (列印時隱藏) -->
+    <nav class="bg-blue-600 text-white p-4 shadow-md print-hidden sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                我所知道的康橋 - 互動講義
+            </h1>
+            <div class="flex gap-2 bg-blue-700 p-1 rounded-lg">
+                <button id="btn-learn" onclick="setMode('learn')" class="mode-btn px-4 py-2 rounded-md flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> 
+                    學習模式
+                </button>
+                <button id="btn-quiz" onclick="setMode('quiz')" class="mode-btn px-4 py-2 rounded-md flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> 
+                    考卷列印
+                </button>
+                <button id="btn-answer" onclick="setMode('answer')" class="mode-btn px-4 py-2 rounded-md flex items-center gap-2 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><polyline points="9 15 11 17 15 13"></polyline></svg> 
+                    解答列印
+                </button>
+            </div>
+            <button onclick="window.print()" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded-md flex items-center gap-2 shadow font-bold transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg> 
+                列印 (A4直式)
+            </button>
+        </div>
+    </nav>
+
+    <!-- 講義內容區 -->
+    <main class="max-w-4xl mx-auto p-8 bg-white my-8 shadow-lg print-no-shadow print-m-0 print-p-0 print-max-w-none">
+        
+        <!-- 標題 -->
+        <div class="text-center mb-8 pb-4 border-b-2 border-gray-800">
+            <h1 class="text-3xl font-bold mb-2">
+                【L4 我所知道的康橋】綜合測驗<span id="doc-title-suffix"></span>
+            </h1>
+            <p class="text-gray-600">班級：______ 座號：______ 姓名：____________</p>
+        </div>
+
+        <!-- 壹、作者與題解 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-4 bg-gray-200 p-2 border-l-4 border-blue-600">壹、作者與題解</h2>
+            <ol class="list-decimal pl-6 space-y-3 text-lg leading-relaxed">
+                <li>本文節選自《<span class="blank" data-answer="徐志摩全集"></span>》。康橋為英文 <span class="blank" data-answer="Cambridge"></span> 的譯名，也譯作劍橋，位於英國。</li>
+                <li>作者曾在此求學，留下美好回憶。全文筆調熱情活潑，辭采<span class="blank" data-answer="華美絢麗"></span>，充分流露對康橋的眷戀之情。</li>
+                <li>徐志摩曾深情回憶：「我的眼是康橋教我<span class="blank" data-answer="睜"></span>的，我的求知欲是康橋給我<span class="blank" data-answer="撥動"></span>的，我的自我意識是康橋給我<span class="blank" data-answer="胚胎"></span>的。」</li>
+                <li>作者原名<span class="blank" data-answer="章垿"></span>，早年師事<span class="blank" data-answer="梁啟超"></span>。其以詩文享譽文壇，作品極富<span class="blank" data-answer="浪漫"></span>色彩。不幸於民國20年因<span class="blank" data-answer="飛機墜毀"></span>罹難。</li>
+            </ol>
+        </section>
+
+        <hr class="my-8 border-gray-300" />
+
+        <!-- 貳、字音字形與字義 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-4 bg-gray-200 p-2 border-l-4 border-blue-600">貳、字音字形、字義與成語</h2>
+            
+            <h3 class="font-bold text-xl mb-2 mt-4">● 重要字音字形</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <ul class="list-disc pl-6 space-y-2 text-lg">
+                    <li>「<span class="blank" data-answer="嫵"></span>」媚：音 <span class="blank" data-answer="ㄨˇ"></span>，嬌美。</li>
+                    <li><span class="blank" data-answer="娉婷"></span>：音 ㄆㄧㄥ ㄊㄧㄥˊ，輕巧美好的樣子。</li>
+                    <li>「<span class="blank" data-answer="偌"></span>」大：音 <span class="blank" data-answer="ㄖㄨㄛˋ"></span>，如此、那麼。</li>
+                    <li>「<span class="blank" data-answer="糝"></span>」上：音 <span class="blank" data-answer="ㄙㄢˇ"></span>，撒落。</li>
+                    <li><span class="blank" data-answer="參差"></span>：音 <span class="blank" data-answer="ㄘㄣ ㄘ"></span>，不整齊的樣子。</li>
+                    <li>「<span class="blank" data-answer="翳"></span>」入天聽：音 <span class="blank" data-answer="ㄧˋ"></span>，隱沒。</li>
+                </ul>
+                <ul class="list-disc pl-6 space-y-2 text-lg">
+                    <li>「<span class="blank" data-answer="伺"></span>」候：音 <span class="blank" data-answer="ㄙˋ"></span>，此指探訪等候。</li>
+                    <li>怯「<span class="blank" data-answer="怜怜"></span>」：音 <span class="blank" data-answer="ㄌㄧㄢˊ"></span>，膽小可憐的樣子。</li>
+                    <li>「<span class="blank" data-answer="窈窕"></span>」：音 ㄧㄠˇ ㄊㄧㄠˇ，幽靜美好的樣子。</li>
+                    <li>「<span class="blank" data-answer="恣"></span>」你嘗新：音 <span class="blank" data-answer="ㄗˋ"></span>，隨、任憑。</li>
+                    <li>輕「<span class="blank" data-answer="輿"></span>」：音 ㄩˊ，<span class="blank" data-answer="轎子"></span>。</li>
+                    <li>「<span class="blank" data-answer="冉冉"></span>」：緩慢移動的樣子。</li>
+                </ul>
+            </div>
+
+            <h3 class="font-bold text-xl mb-4 mt-8 text-blue-800">● 易混淆字音比較與練習</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- 第一組 (和) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                        <h4 class="font-bold text-lg text-gray-700">第一組：和</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>和<rt>ㄏㄢˋ</rt></ruby></span>：「<span class="blank" data-answer="和"></span>」身在草綿綿處：音 <span class="blank" data-answer="ㄏㄢˋ"></span>，連同。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>和<rt>ㄏㄜˋ</rt></ruby></span>：唱「<span class="blank" data-answer="和"></span>」：音 <span class="blank" data-answer="ㄏㄜˋ"></span>，聲音相應。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>和<rt>ㄏㄨㄛˋ</rt></ruby></span>：「<span class="blank" data-answer="和"></span>」在茶葉中：音 <span class="blank" data-answer="ㄏㄨㄛˋ"></span>，攪拌、混合。</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-lg rounded-r">
+                        <strong>【練習】</strong>本來大夥坐在樹蔭下哼著輕快<span class="blank" data-answer="和"></span>（<span class="blank" data-answer="ㄏㄜˊ"></span>）諧的曲子，哪知闖來一個醉漢在附近嘶吼，被他一攪<span class="blank" data-answer="和"></span>（<span class="blank" data-answer="ㄏㄨㄛˋ"></span>），大家雅致全飛走了。
+                    </div>
+                </div>
+
+                <!-- 第二組 (差) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                        <h4 class="font-bold text-lg text-gray-700">第二組：差</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>差<rt>ㄘ</rt></ruby></span>：「參<span class="blank" data-answer="差"></span>」地翳入了天聽：音 <span class="blank" data-answer="ㄘ"></span>，不整齊的樣子。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>差<rt>ㄔㄞ</rt></ruby></span>：信「<span class="blank" data-answer="差"></span>」：音 <span class="blank" data-answer="ㄔㄞ"></span>，受派遣去做事的人。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>差<rt>ㄔㄚ</rt></ruby></span>：「<span class="blank" data-answer="差"></span>」異：音 <span class="blank" data-answer="ㄔㄚ"></span>，因比較而產生區別。</li>
+                    </ul>
+                </div>
+
+                <!-- 第三組 (伺) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">3</span>
+                        <h4 class="font-bold text-lg text-gray-700">第三組：伺</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>伺<rt>ㄙˋ</rt></ruby></span>：「<span class="blank" data-answer="伺"></span>」候著河上的風光、「<span class="blank" data-answer="伺"></span>」探：音 <span class="blank" data-answer="ㄙˋ"></span>，暗中偵察。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>伺<rt>ㄘˋ</rt></ruby></span>：「<span class="blank" data-answer="伺"></span>」候長上：音 <span class="blank" data-answer="ㄘˋ"></span>，侍奉、服侍。</li>
+                    </ul>
+                </div>
+
+                <!-- 第四組 (參) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">4</span>
+                        <h4 class="font-bold text-lg text-gray-700">第四組：參</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>參<rt>ㄘㄣ</rt></ruby></span>：「<span class="blank" data-answer="參"></span>」差：音 <span class="blank" data-answer="ㄘㄣ"></span>，不整齊的樣子。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>參<rt>ㄕㄣ</rt></ruby></span>：動如「<span class="blank" data-answer="參"></span>」商：音 <span class="blank" data-answer="ㄕㄣ"></span>，星座名。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>參<rt>ㄘㄢ</rt></ruby></span>：「<span class="blank" data-answer="參"></span>」政：音 <span class="blank" data-answer="ㄘㄢ"></span>，加入。</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-lg rounded-r">
+                        <strong>【練習】</strong><span class="blank" data-answer="參"></span>（<span class="blank" data-answer="ㄘㄢ"></span>）加這場盛大典禮的人員，<span class="blank" data-answer="參"></span>（<span class="blank" data-answer="ㄘㄣ"></span>）差地進入了會場。
+                    </div>
+                </div>
+
+                <!-- 第五組 (衝) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">5</span>
+                        <h4 class="font-bold text-lg text-gray-700">第五組：衝</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>衝<rt>ㄔㄨㄥˋ</rt></ruby></span>：正「<span class="blank" data-answer="衝"></span>」著一條寬廣的大道：音 <span class="blank" data-answer="ㄔㄨㄥˋ"></span>，向、對。<br>&emsp;&ensp;「<span class="blank" data-answer="衝"></span>」著他的面子：音 <span class="blank" data-answer="ㄔㄨㄥˋ"></span>，因、看。</li>
+                        <li><span class="font-bold text-blue-700 text-xl"><ruby>衝<rt>ㄔㄨㄥ</rt></ruby></span>：要「<span class="blank" data-answer="衝"></span>」：音 <span class="blank" data-answer="ㄔㄨㄥ"></span>，交通要道。<br>&emsp;&ensp;橫「<span class="blank" data-answer="衝"></span>」直撞：音 <span class="blank" data-answer="ㄔㄨㄥ"></span>，快速朝某一方向移動。</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-lg rounded-r">
+                        <strong>【練習】</strong>他說話很<span class="blank" data-answer="衝"></span>（<span class="blank" data-answer="ㄔㄨㄥˋ"></span>）的毛病若不改，下次還是會再跟別人起<span class="blank" data-answer="衝"></span>（<span class="blank" data-answer="ㄔㄨㄥ"></span>）突。
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl mb-4 mt-8 text-blue-800">● 易混淆字義比較與練習</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- 第一組 (卻) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                        <h4 class="font-bold text-lg text-gray-700">第一組：卻</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li>「<span class="font-bold text-blue-700 text-xl">卻</span>」上輕輿趁晚涼：<span class="blank" data-answer="倒、反"></span>。</li>
+                        <li>「<span class="font-bold text-blue-700 text-xl">卻</span>」看妻子愁何在：<span class="blank" data-answer="回頭"></span>。</li>
+                        <li>「<span class="font-bold text-blue-700 text-xl">卻</span>」之不恭：<span class="blank" data-answer="推辭"></span>、拒而不受。</li>
+                        <li>想幫忙「<span class="font-bold text-blue-700 text-xl">卻</span>」無方法：<span class="blank" data-answer="但"></span>，表示轉折相承。</li>
+                    </ul>
+                </div>
+
+                <!-- 第二組 (輿) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">2</span>
+                        <h4 class="font-bold text-lg text-gray-700">第二組：輿</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li>輕「<span class="font-bold text-blue-700 text-xl">輿</span>」：<span class="blank" data-answer="轎子"></span>。</li>
+                        <li>乘「<span class="font-bold text-blue-700 text-xl">輿</span>」馬驚：<span class="blank" data-answer="車子"></span>。</li>
+                        <li>「<span class="font-bold text-blue-700 text-xl">輿</span>」論：<span class="blank" data-answer="公眾的"></span>。</li>
+                    </ul>
+                </div>
+
+                <!-- 第三組 (翳) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">3</span>
+                        <h4 class="font-bold text-lg text-gray-700">第三組：翳</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li>「<span class="font-bold text-blue-700 text-xl">翳</span>」入了天聽：<span class="blank" data-answer="隱沒"></span>。</li>
+                        <li>眼「<span class="font-bold text-blue-700 text-xl">翳</span>」病：眼珠上所生遮蔽視線的<span class="blank" data-answer="薄膜"></span>。</li>
+                    </ul>
+                </div>
+
+                <!-- 第四組 (信) -->
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center font-bold">4</span>
+                        <h4 class="font-bold text-lg text-gray-700">第四組：信</h4>
+                    </div>
+                    <ul class="list-disc pl-6 space-y-2 text-lg">
+                        <li>探春「<span class="font-bold text-blue-700 text-xl">信</span>」：<span class="blank" data-answer="消息"></span>、音訊。</li>
+                        <li>印「<span class="font-bold text-blue-700 text-xl">信</span>」：<span class="blank" data-answer="符契"></span>、憑證。</li>
+                        <li>「<span class="font-bold text-blue-700 text-xl">信</span>」手、「<span class="font-bold text-blue-700 text-xl">信</span>」步：<span class="blank" data-answer="隨意"></span>、任憑。</li>
+                        <li>「<span class="font-bold text-blue-700 text-xl">信</span>」實：<span class="blank" data-answer="誠實"></span>不欺。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl mb-2 mt-4">● 重要詞義與成語</h3>
+            <ol class="list-decimal pl-6 space-y-3 text-lg leading-relaxed">
+                <li>沃「腴」：土地肥美。同義詞有：<span class="blank" data-answer="膏腴"></span>之地。</li>
+                <li>掛單：原指僧侶投宿寺院，課文中指<span class="blank" data-answer="借宿"></span>。</li>
+                <li>夸父逐日：比喻<span class="blank" data-answer="不自量力"></span>或有雄心壯志但未竟大業。其近義詞為<span class="blank" data-answer="螳臂當車"></span> / 蚍蜉撼樹。</li>
+                <li><span class="blank" data-answer="栩栩如生"></span>：形容貌態逼真，彷彿具有生命力。近義詞有：<span class="blank" data-answer="維妙維肖"></span>、躍然紙上。</li>
+                <li><span class="blank" data-answer="荒誕"></span>：荒唐而不合情理。反義詞為：真實、合情合理。</li>
+            </ol>
+        </section>
+
+        <hr class="my-8 border-gray-300" />
+
+        <!-- 參、課文深究與寫作手法 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-4 bg-gray-200 p-2 border-l-4 border-blue-600">參、課文深究與寫作手法</h2>
+            <ol class="list-decimal pl-6 space-y-3 text-lg leading-relaxed">
+                <li>寫作脈絡：全文循著「<span class="blank" data-answer="時間"></span>」脈絡，由<span class="blank" data-answer="早晨"></span>而<span class="blank" data-answer="白天"></span>而<span class="blank" data-answer="黃昏"></span>，屬於<span class="blank" data-answer="順敘"></span>法。並配合「<span class="blank" data-answer="空間"></span>」的轉移，描寫深入。</li>
+                <li>
+                    <strong>第一段（初春晨景）的視角轉換：</strong>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li><span class="blank" data-answer="平視"></span>：水溶溶的大道 → 漠楞楞的林子 → 平原、近村的教寺。</li>
+                        <li><span class="blank" data-answer="俯瞰"></span>：登土阜望茂林、村舍、樹林。</li>
+                        <li><span class="blank" data-answer="仰望"></span>：朝霧漸漸升起、炊煙上騰、難得見的朝陽。</li>
+                    </ul>
+                </li>
+                <li>「遠近的炊煙... 彷彿是朝來人們的祈禱，參差地翳入了天聽。」作者將眼所見與耳所聞結合，用<span class="blank" data-answer="聽覺"></span>印象來表現<span class="blank" data-answer="視覺"></span>感受。（感官交錯）</li>
+                <li>
+                    <strong>第二段（探春信）：</strong>
+                    連用六個「<span class="blank" data-answer="關心"></span>」的排比句，表現出作者細心的觀照，流露出對春信<span class="blank" data-answer="殷切的盼望"></span>。以擬人手法描寫花朵相繼綻放（如怯怜怜的小雪球、窈窕的蓮馨）。
+                </li>
+                <li>
+                    <strong>第三段（白天野遊）：</strong>
+                    連用四個「你如愛...」，以第<span class="blank" data-answer="二"></span>人稱「<span class="blank" data-answer="你"></span>」來寫作。作用是拉近與讀者的距離，彷彿面對面把臂歡談，讓人感到親切與作者的熱情洋溢。歸納出在草綿綿處「<span class="blank" data-answer="尋夢"></span>」是最適情、適性的消遣。
+                </li>
+                <li>
+                    <strong>第四段（描繪暮色）：</strong>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li>引用南宋詩人<span class="blank" data-answer="陸游"></span>（陸放翁）的詩句：「傳呼快馬迎新月，卻上輕輿趁晚涼」，藉此烘托自己在康橋騎自行車追夕陽的雅趣與<span class="blank" data-answer="風流"></span>。</li>
+                        <li>作者面對寬廣大道上放草歸來的羊群背後，冉冉漸隱的金光，不由自主地「<span class="blank" data-answer="跪下"></span>」了。原因是：面對造物主的<span class="blank" data-answer="偉大莊嚴"></span>，產生了油然而生的<span class="blank" data-answer="虔誠"></span>與悸動。</li>
+                        <li>文末「這草田變成了<span class="blank" data-answer="......"></span>」以<span class="blank" data-answer="刪節號"></span>作結，留給讀者無窮的想像空間，體會無法言喻的「神異性」。</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <hr class="my-8 border-gray-300" />
+
+        <!-- 肆、修辭與句型 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-4 bg-gray-200 p-2 border-l-4 border-blue-600">肆、修辭法大全</h2>
+            <div class="my-4 break-inside-avoid">
+                <table class="w-full border-collapse border border-gray-400 text-lg">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border border-gray-400 p-2 w-1/4">修辭法</th>
+                            <th class="border border-gray-400 p-2 w-3/4">課文例句與說明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">回文</td>
+                            <td class="border border-gray-400 p-2">「有村舍處有佳蔭，有佳蔭處有村舍。」（兼類疊）</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">排比</td>
+                            <td class="border border-gray-400 p-2">
+                                「頃刻間這田野添深了顏色...頃刻間這周遭瀰漫了...頃刻間你的心懷也分潤了白天誕生的光榮。」<br>
+                                <span class="text-sm text-gray-600">★ 作用：把時間說得極為急促，表示初曉景色的<span class="blank" data-answer="瞬息變化"></span>，讓人有目不暇接之感。</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">轉化 (擬人/擬物)</td>
+                            <td class="border border-gray-400 p-2">
+                                1. 「『春！』這勝利的晴空彷彿在你的耳邊<span class="blank" data-answer="私語"></span>。」<br>
+                                2. 「我沒有夸父的荒誕，但晚景的溫存卻被我這樣<span class="blank" data-answer="偷嘗"></span>了不少。」<br>
+                                3. 「<span class="blank" data-answer="嫵媚"></span>的康河也望不見蹤跡。」
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">譬喻</td>
+                            <td class="border border-gray-400 p-2">
+                                1. 「地形<span class="blank" data-answer="像是"></span>海裡的輕波」<br>
+                                2. 「<span class="blank" data-answer="錦帶似的"></span>林木」<br>
+                                3. 「村舍與樹林<span class="blank" data-answer="是"></span>這地盤上的棋子」<br>
+                                4. 「在青草裡亭亭地<span class="blank" data-answer="像是"></span>萬盞的金燈」
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">映襯</td>
+                            <td class="border border-gray-400 p-2">
+                                1. 「<span class="blank" data-answer="敗草"></span>裡的<span class="blank" data-answer="鮮花"></span>。」<br>
+                                2. 「只遠處牛奶車的鈴聲，點綴這周遭的<span class="blank" data-answer="沉默"></span>。」（以動襯靜）
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-400 p-2 text-center font-bold">倒裝</td>
+                            <td class="border border-gray-400 p-2">
+                                「朝陽是難得見的，這初春的天氣」<br>
+                                <span class="text-sm text-gray-600">★ 原句順序應為：「這初春的天氣，<span class="blank" data-answer="朝陽是難得見的"></span>。」</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <hr class="my-8 border-gray-300" />
+
+        <!-- 伍、注音與國字綜合練習 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-6 bg-gray-200 p-2 border-l-4 border-blue-600">伍、注音與國字綜合練習</h2>
+            
+            <h3 class="font-bold text-xl mb-4 text-blue-800">一、寫出注音</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 mb-8 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <div class="text-lg">1. 「朝」來：<span class="blank" data-answer="ㄓㄠ"></span></div>
+                <div class="text-lg">2. 點「綴」：<span class="blank" data-answer="ㄓㄨㄟˋ"></span></div>
+                <div class="text-lg">3. 榆蔭：<span class="blank" data-answer="ㄩˊ ㄧㄣˋ"></span></div>
+                <div class="text-lg">4. 「曙」色：<span class="blank" data-answer="ㄕㄨˇ"></span></div>
+                <div class="text-lg">5. 「饅」形：<span class="blank" data-answer="ㄇㄢˊ"></span></div>
+                <div class="text-lg">6. 沃腴：<span class="blank" data-answer="ㄨㄛˋ ㄩˊ"></span></div>
+                <div class="text-lg">7. 土「阜」：<span class="blank" data-answer="ㄈㄨˋ"></span></div>
+                <div class="text-lg">8. 娉婷：<span class="blank" data-answer="ㄆㄧㄥ ㄊㄧㄥˊ"></span></div>
+                <div class="text-lg">9. 嫵媚：<span class="blank" data-answer="ㄨˇ ㄇㄟˋ"></span></div>
+                <div class="text-lg">10. 成「縷」的：<span class="blank" data-answer="ㄌㄩˇ"></span></div>
+                <div class="text-lg">11. 參差：<span class="blank" data-answer="ㄘㄣ ㄘ"></span></div>
+                <div class="text-lg">12. 「翳」入：<span class="blank" data-answer="ㄧˋ"></span></div>
+                <div class="text-lg">13. 「頃」刻：<span class="blank" data-answer="ㄑㄧㄥˇ"></span></div>
+                <div class="text-lg">14. 「糝」上：<span class="blank" data-answer="ㄙㄢˇ"></span></div>
+                <div class="text-lg">15. 「伺」候：<span class="blank" data-answer="ㄙˋ"></span></div>
+                <div class="text-lg">16. 「酪」漿：<span class="blank" data-answer="ㄌㄨㄛˋ"></span></div>
+                <div class="text-lg">17. 窈窕：<span class="blank" data-answer="ㄧㄠˇ ㄊㄧㄠˇ"></span></div>
+                <div class="text-lg">18. 罌粟：<span class="blank" data-answer="ㄧㄥ ㄙㄨˋ"></span></div>
+            </div>
+            
+            <h3 class="font-bold text-xl mb-4 text-blue-800">二、寫出國字</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <div class="text-lg">1. 「ㄓㄠ」來：<span class="blank" data-answer="朝"></span></div>
+                <div class="text-lg">2. 點「ㄓㄨㄟˋ」：<span class="blank" data-answer="綴"></span></div>
+                <div class="text-lg">3. ㄩˊ ㄧㄣˋ：<span class="blank" data-answer="榆蔭"></span></div>
+                <div class="text-lg">4. 「ㄕㄨˇ」色：<span class="blank" data-answer="曙"></span></div>
+                <div class="text-lg">5. 「ㄇㄢˊ」形：<span class="blank" data-answer="饅"></span></div>
+                <div class="text-lg">6. ㄨㄛˋ ㄩˊ：<span class="blank" data-answer="沃腴"></span></div>
+                <div class="text-lg">7. 土「ㄈㄨˋ」：<span class="blank" data-answer="阜"></span></div>
+                <div class="text-lg">8. ㄆㄧㄥ ㄊㄧㄥˊ：<span class="blank" data-answer="娉婷"></span></div>
+                <div class="text-lg">9. ㄨˇ ㄇㄟˋ：<span class="blank" data-answer="嫵媚"></span></div>
+                <div class="text-lg">10. 成「ㄌㄩˇ」的：<span class="blank" data-answer="縷"></span></div>
+                <div class="text-lg">11. ㄘㄣ ㄘ：<span class="blank" data-answer="參差"></span></div>
+                <div class="text-lg">12. 「ㄧˋ」入：<span class="blank" data-answer="翳"></span></div>
+                <div class="text-lg">13. 「ㄑㄧㄥˇ」刻：<span class="blank" data-answer="頃"></span></div>
+                <div class="text-lg">14. 「ㄙㄢˇ」上：<span class="blank" data-answer="糝"></span></div>
+                <div class="text-lg">15. 「ㄙˋ」候：<span class="blank" data-answer="伺"></span></div>
+                <div class="text-lg">16. 「ㄌㄨㄛˋ」漿：<span class="blank" data-answer="酪"></span></div>
+                <div class="text-lg">17. ㄧㄠˇ ㄊㄧㄠˇ：<span class="blank" data-answer="窈窕"></span></div>
+                <div class="text-lg">18. ㄧㄥ ㄙㄨˋ：<span class="blank" data-answer="罌粟"></span></div>
+            </div>
+        </section>
+
+        <hr class="my-8 border-gray-300" />
+
+        <!-- 陸、注釋綜合測驗 -->
+        <section class="mb-10 break-inside-avoid">
+            <h2 class="text-2xl font-bold mb-6 bg-gray-200 p-2 border-l-4 border-blue-600">陸、注釋綜合測驗</h2>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <p class="text-gray-600 mb-6 italic text-lg">💡 提示：請根據下方注釋的意思，填入對應的詞語。</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">1.</span>溼潤的樣子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="水溶溶"></span></div>
+                    </div>
+                    
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">2.</span>模糊不清的樣子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="漠楞楞"></span></div>
+                    </div>
+                    
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">3.</span>指教堂。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="教寺"></span></div>
+                    </div>
+                    
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">4.</span>山峰。巖，音ㄧㄢˊ，高峻的山崖。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="山巖"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">5.</span>土地肥美。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="沃腴"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">6.</span>土丘。阜，音ㄈㄨˋ，土山。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="土阜"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">7.</span>在此有圍繞之意。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="擁戴"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">8.</span>音ㄆㄧㄥ ㄊㄧㄥˊ，輕巧美好的樣子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="娉婷"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">9.</span>姿態美好的樣子。嫵，音ㄨˇ，嬌美。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="嫵媚"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">10.</span>音ㄘㄣ ㄘ，不整齊的樣子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="參差"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">11.</span>隱沒在天際，被上天聽到。翳，音ㄧˋ，隱沒。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="翳入了天聽"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">12.</span>音ㄙㄢˇ，撒落。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="糝"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">13.</span>此指探訪等候。伺，音ㄙˋ。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="伺候"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">14.</span>膽小可憐的樣子。怜，音ㄌㄧㄢˊ，通「憐」。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="怯怜怜"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">15.</span>春天的消息。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="春信"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">16.</span>音ㄧㄠˇ ㄊㄧㄠˇ，幽靜美好的樣子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="窈窕"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">17.</span>光彩紛呈的樣子。亦作「爛漫」。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="爛縵"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">18.</span>道路設計、維護等相關事務。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="路政"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">19.</span>原指僧侶投宿寺院暫住，此指借宿。註：單，指僧堂裡的名單，把衣缽掛在名單之下，故稱「掛單」。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="掛單"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">20.</span>音ㄗˋ，隨、任憑。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="恣"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">21.</span>即陸游，宋代愛國詩人，著有劍南詩稿等書。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="陸放翁"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">22.</span>原來叫人準備快馬，想去觀賞新月，卻還是坐上輕便的轎子，趁著晚風，享受清涼。輿，音ㄩˊ，轎子。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="「傳呼」二句"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">23.</span>此指風雅灑脫。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="風流"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">24.</span>古代神話人物，因為追逐太陽而渴死。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="夸父"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">25.</span>荒唐而不合情理。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="荒誕"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">26.</span>溫柔。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="溫存"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">27.</span>活生生的樣子。栩，音ㄒㄩˇ。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="栩栩"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">28.</span>音ㄔㄨㄥˋ，向、對。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="衝"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">29.</span>那麼大。偌，音ㄖㄨㄛˋ，如此、那麼。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="偌大"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">30.</span>緩慢移動的樣子。冉，音ㄖㄢˇ。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="冉冉"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">31.</span>音ㄔㄚˋ ㄋㄚˋ，極短的時間。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="剎那"></span></div>
+                    </div>
+
+                    <div class="text-lg flex flex-col gap-1 border-b border-gray-100 pb-3">
+                        <div class="text-gray-700 leading-relaxed"><span class="font-bold text-blue-700 mr-1">32.</span>迷亂昏眩。眩，音ㄒㄩㄢˋ。</div>
+                        <div class="ml-5 text-gray-800 font-bold">答：<span class="blank" data-answer="迷眩"></span></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 列印用頁尾版權/備註資訊 -->
+    <footer class="hidden print-block text-center text-sm text-gray-500 mt-8 pb-8">
+        — 國文講義測驗卷 (我所知道的康橋) —
+    </footer>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        function setMode(mode) {
+            // 更新按鈕樣式
+            const buttons = document.querySelectorAll('.mode-btn');
+            buttons.forEach(btn => {
+                btn.className = 'mode-btn px-4 py-2 rounded-md flex items-center gap-2 transition-colors hover:bg-blue-500';
+            });
+            
+            const activeBtn = document.getElementById('btn-' + mode);
+            if (activeBtn) {
+                activeBtn.className = 'mode-btn px-4 py-2 rounded-md flex items-center gap-2 transition-colors bg-white text-blue-700 font-bold shadow';
+            }
+
+            // 更新文件標題與填空樣式
+            const titleSuffix = document.getElementById('doc-title-suffix');
+            const blanks = document.querySelectorAll('.blank');
+
+            if (mode === 'quiz') {
+                titleSuffix.textContent = ' (學生測驗卷)';
+                blanks.forEach(blank => {
+                    // 學生卷：隱藏文字、顯示底線
+                    blank.textContent = blank.getAttribute('data-answer');
+                    blank.className = 'blank inline-block min-w-[3rem] border-b border-gray-600 mx-1 align-bottom text-transparent px-2';
+                });
+            } else if (mode === 'answer' || mode === 'learn') {
+                titleSuffix.textContent = mode === 'answer' ? ' (教師解答卷)' : '';
+                blanks.forEach(blank => {
+                    // 解答卷/學習模式：顯示紅色解答
+                    blank.textContent = blank.getAttribute('data-answer');
+                    blank.className = 'blank inline-block min-w-[3rem] border-b-2 border-red-500 mx-1 align-bottom text-red-600 font-bold px-2 text-center';
+                });
+            }
+        }
+
+        // 頁面載入時預設為學習模式
+        document.addEventListener('DOMContentLoaded', () => {
+            setMode('learn');
+        });
+    </script>
+</body>
+</html>
