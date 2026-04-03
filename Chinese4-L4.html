@@ -134,7 +134,7 @@
 
         /* --- Welcome Screen --- */
         #welcome-screen {
-            background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Chinese4-L2-images/background.jpg');
+            background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)), url('Chinese4-L4-images/background.jpg');
             background-size: cover; background-position: center; border-left: 6px solid var(--primary-color);
         }
         .avatar-selection { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
@@ -192,7 +192,7 @@
         
         /* Dashboard 背景圖設定 */
         #level-screen {
-            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Chinese4-L2-images/background.jpg');
+            background: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('Chinese4-L4-images/background.jpg');
             background-size: cover; background-position: center;
         }
 
@@ -477,9 +477,9 @@
         </div>
         
         <div class="avatar-selection">
-            <img src="Chinese4-L2-images/Chris.png" class="avatar-option selected" onclick="window.app.selectAvatar('Chris.png', this)">
-            <img src="Chinese4-L2-images/Louis.png" class="avatar-option" onclick="window.app.selectAvatar('Louis.png', this)">
-            <img src="Chinese4-L2-images/kitty.png" class="avatar-option" onclick="window.app.selectAvatar('kitty.png', this)">
+            <img src="Chinese4-L4-images/Chris.png" class="avatar-option selected" onclick="window.app.selectAvatar('Chris.png', this)">
+            <img src="Chinese4-L4-images/Louis.png" class="avatar-option" onclick="window.app.selectAvatar('Louis.png', this)">
+            <img src="Chinese4-L4-images/kitty.png" class="avatar-option" onclick="window.app.selectAvatar('kitty.png', this)">
         </div>
 
         <div id="quick-login-area" class="quick-login-area">
@@ -729,7 +729,7 @@
             await initFirebaseConnection();
 
             // 更新題目 JSON 來源
-            fetch('Chinese4-L2-questions.json').then(res => res.json())
+            fetch('Chinese4-L4-questions.json').then(res => res.json())
             .then(data => { 
                 allQuestions = data; 
                 
@@ -814,7 +814,7 @@
             }
             container.innerHTML = users.map(u => `
                 <div class="user-tag" onclick="window.app.quickLogin('${u.name}', '${u.avatar}')">
-                    <img src="Chinese4-L2-images/${u.avatar}" style="width:20px;height:20px;border-radius:50%;">${u.name}
+                    <img src="Chinese4-L4-images/${u.avatar}" style="width:20px;height:20px;border-radius:50%;">${u.name}
                     <span class="delete-user" onclick="event.stopPropagation();window.app.deleteUser('${u.name}')">×</span>
                 </div>
             `).join('');
@@ -1087,7 +1087,7 @@
             hideAllScreens();
             document.getElementById('level-screen').style.display = 'block';
             document.getElementById('display-name').innerText = userName;
-            document.getElementById('user-avatar-display').src = "Chinese4-L2-images/" + currentAvatar;
+            document.getElementById('user-avatar-display').src = "Chinese4-L4-images/" + currentAvatar;
             
             renderLevelGrid();
             updateDashboardTools();
@@ -1618,8 +1618,8 @@
                 item.className = `card-item ${unlocked?'':'locked'}`;
                 
                 if(unlocked) {
-                    item.innerHTML = `<img src="Chinese4-L2-images/card_${num}.jpg" onerror="this.src='https://via.placeholder.com/150?text=Card+${num}'">`;
-                    item.onclick = () => window.app.openCardModal(`Chinese4-L2-images/card_${num}.jpg`, `榮譽勳章 #${num}`);
+                    item.innerHTML = `<img src="Chinese4-L4-images/card_${num}.jpg" onerror="this.src='https://via.placeholder.com/150?text=Card+${num}'">`;
+                    item.onclick = () => window.app.openCardModal(`Chinese4-L4-images/card_${num}.jpg`, `榮譽勳章 #${num}`);
                 } else {
                     item.innerHTML = `<span style="font-size:2em;">🔒</span><br>關卡 ${i}`;
                 }
